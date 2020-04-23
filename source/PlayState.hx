@@ -8,6 +8,7 @@ import flixel.text.FlxText;
 import nape.constraint.DistanceJoint;
 import nape.constraint.LineJoint;
 import nape.constraint.PulleyJoint;
+import nape.dynamics.InteractionFilter;
 import nape.geom.Vec2;
 import nape.phys.Body;
 import nape.phys.BodyType;
@@ -18,6 +19,10 @@ import openfl.display.FPS;
 
 class PlayState extends FlxState {
 	var fps:FPS;
+
+	private static inline var TERRAIN_GROUP:Int = 1;
+	private static inline var SHIP_GROUP:Int = 2;
+	private static inline var CARGO_GROUP:Int = 4;
 
 	var gravity:Vec2 = Vec2.get().setxy(0, 200);
 
@@ -50,6 +55,9 @@ class PlayState extends FlxState {
 		ship.loadGraphic(AssetPaths.shot__png);
 		var body = new Body(BodyType.DYNAMIC);
 		body.shapes.add(new Polygon(Polygon.regular(40, 20, 3)));
+		var shipFilter = new InteractionFilter(SHIP_GROUP, ~(CARGO_GROUP));
+		body.setShapeFilters(shipFilter);
+
 		ship.addPremadeBody(body);
 		ship.body.rotation = -Math.PI / 2;
 		add(ship);
@@ -59,6 +67,10 @@ class PlayState extends FlxState {
 		var cargoBody = new Body(BodyType.DYNAMIC);
 		cargoBody.shapes.add(new Polygon(Polygon.rect(-5, -5, 10, 10)));
 		cargoBody.gravMassScale = 5;
+
+		var cargoFilter = new InteractionFilter(CARGO_GROUP, ~(SHIP_GROUP));
+		cargoBody.setShapeFilters(cargoFilter);
+
 		cargo.addPremadeBody(cargoBody);
 		add(cargo);
 
