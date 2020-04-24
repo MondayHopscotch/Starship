@@ -1,5 +1,7 @@
 package;
 
+import constants.CbTypes;
+import constants.CollisionGroups;
 import flixel.FlxG;
 import flixel.FlxState;
 import flixel.addons.nape.FlxNapeSpace;
@@ -38,15 +40,6 @@ class PlayState extends FlxState {
 
 	var controls:BasicControls;
 
-	// COLLISION GROUPS
-	private static inline var TERRAIN_GROUP:Int = 1;
-	private static inline var SHIP_GROUP:Int = 2;
-	private static inline var CARGO_GROUP:Int = 4;
-
-	// CB (Callback) TYPES
-	var CB_SHIP_SENSOR_RANGE = new CbType();
-	var CB_CARGO = new CbType();
-
 	var ship:FlxNapeSprite;
 
 	var validCargoTargets:Array<FlxNapeSprite> = [];
@@ -67,6 +60,7 @@ class PlayState extends FlxState {
 	override public function create() {
 		super.create();
 
+		CbTypes.initTypes();
 		FlxNapeSpace.init();
 		FlxNapeSpace.drawDebug = true;
 		FlxNapeSpace.createWalls(0, 0, 0, 0);
@@ -92,13 +86,13 @@ class PlayState extends FlxState {
 		ship.loadGraphic(AssetPaths.shot__png);
 		var body = new Body(BodyType.DYNAMIC);
 		body.shapes.add(new Polygon(Polygon.regular(40, 20, 3)));
-		var shipFilter = new InteractionFilter(SHIP_GROUP, ~(CARGO_GROUP));
+		var shipFilter = new InteractionFilter(CollisionGroups.SHIP, ~(CollisionGroups.CARGO));
 		body.setShapeFilters(shipFilter);
 
 		var weightless = new Material(0, 1, 2, 0.00000001);
 		var sensor = new Circle(MAX_TOW_DISTANCE);
 		sensor.sensorEnabled = true;
-		sensor.cbTypes.add(CB_SHIP_SENSOR_RANGE);
+		sensor.cbTypes.add(CbTypes.CB_SHIP_SENSOR_RANGE);
 		sensor.body = body;
 
 		ship.addPremadeBody(body);
@@ -106,9 +100,10 @@ class PlayState extends FlxState {
 		ship.body.rotation = -Math.PI / 2;
 		add(ship);
 
-		FlxNapeSpace.space.listeners.add(new InteractionListener(CbEvent.BEGIN, InteractionType.SENSOR, CB_SHIP_SENSOR_RANGE, CB_CARGO,
+		FlxNapeSpace.space.listeners.add(new InteractionListener(CbEvent.BEGIN, InteractionType.SENSOR, CbTypes.CB_SHIP_SENSOR_RANGE, CbTypes.CB_CARGO,
 			cargoEnterRangeCallback));
-		FlxNapeSpace.space.listeners.add(new InteractionListener(CbEvent.END, InteractionType.SENSOR, CB_SHIP_SENSOR_RANGE, CB_CARGO, cargoExitRangeCallback));
+		FlxNapeSpace.space.listeners.add(new InteractionListener(CbEvent.END, InteractionType.SENSOR, CbTypes.CB_SHIP_SENSOR_RANGE, CbTypes.CB_CARGO,
+			cargoExitRangeCallback));
 	}
 
 	function createCargo(spriteName:FlxGraphicAsset, x:Int, y:Int, size:Float) {
@@ -121,9 +116,9 @@ class PlayState extends FlxState {
 		cargoBody.shapes.add(new Polygon(Polygon.rect(-size / 2, -size / 2, size, size)));
 		cargoBody.mass *= 5;
 		cargoBody.userData.data = cargo;
-		cargoBody.cbTypes.add(CB_CARGO);
+		cargoBody.cbTypes.add(CbTypes.CB_CARGO);
 
-		var cargoFilter = new InteractionFilter(CARGO_GROUP, ~(SHIP_GROUP));
+		var cargoFilter = new InteractionFilter(CollisionGroups.CARGO, ~(CollisionGroups.SHIP));
 		cargoBody.setShapeFilters(cargoFilter);
 
 		cargo.addPremadeBody(cargoBody);
@@ -147,12 +142,8 @@ class PlayState extends FlxState {
 			joint.jointMax = MAX_TOW_DISTANCE;
 
 			var ray = Ray.fromSegment(new Vec2().setxy(ship.x, ship.y), new Vec2().setxy(cargo.x, cargo.y));
-			var result:RayResult = FlxNapeSpace.space.rayCast(ray, false, new InteractionFilter(CARGO_GROUP, CARGO_GROUP));
+			var result:RayResult = FlxNapeSpace.space.rayCast(ray, false, new InteractionFilter(CollisionGroups.CARGO, CollisionGroups.CARGO));
 			if (result != null) {
-				FlxG.log.notice("ray hit: " + result.shape.body.userData);
-				FlxG.watch.addQuick("Ray normal: ", result.normal);
-				FlxG.watch.addQuick("Ray dist  : ", result.distance);
-				// var anchorPos = Vec2.weak().setxy(ship.x, ship.y).add(result.normal.mul(result.distance));
 				joint.anchor2.set(ray.at(result.distance).sub(Vec2.weak().setxy(cargo.x, cargo.y)).rotate(-cargo.angle * RADIANS_PER_DEGREE));
 			}
 		}
@@ -190,12 +181,10 @@ class PlayState extends FlxState {
 	}
 
 	public function cargoEnterRangeCallback(clbk:InteractionCallback) {
-		FlxG.log.notice("cargo entered");
 		validCargoTargets.push(cast(clbk.int2.userData.data, FlxNapeSprite));
 	}
 
 	public function cargoExitRangeCallback(clbk:InteractionCallback) {
-		FlxG.log.notice("cargo exited");
 		validCargoTargets.remove(cast(clbk.int2.userData.data, FlxNapeSprite));
 	}
 
@@ -214,7 +203,6 @@ class PlayState extends FlxState {
 
 		if (Math.abs(controls.steer.x) > 0.1) {
 			FlxG.watch.addQuick("Steering     : ", controls.steer.x);
-			// ship.body.applyAngularImpulse(TURN_POWER * controls.steer.x);
 			ship.body.angularVel = TURN_POWER * Math.pow(controls.steer.x, 3);
 		}
 		FlxG.watch.addQuick("AngrlarVel     : ", ship.body.angularVel);
