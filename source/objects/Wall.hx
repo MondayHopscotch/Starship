@@ -61,11 +61,10 @@ class Wall extends FlxTypedGroup<FlxNapeSprite> {
 
 		knob.loadGraphic(AssetPaths.shot__png);
 		knob.scale.set(knobRadius * 2 / 32, knobRadius * 2 / 32);
-
-		knob.setMidpoint(x + knobRadius * 2, segmentHeight + hatchHeight / 2);
 		knob.createCircularBody(knobRadius);
-		knob.body.type = BodyType.STATIC;
 		knob.body.userData.data = knob;
+		knob.body.position.set(hatch.body.position);
+		knob.body.type = BodyType.STATIC;
 
 		knob.body.cbTypes.add(CbTypes.CB_CARGO);
 
