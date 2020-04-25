@@ -12,6 +12,7 @@ class MainMenuState extends FlxState {
 
 	override public function create():Void {
 		super.create();
+		FlxG.debugger.visible = true;
 		bgColor = FlxColor.TRANSPARENT;
 
 		_btnPlay = new FlxButton(0, 0, "Cargo", () -> FlxG.switchState(new PlayState()));

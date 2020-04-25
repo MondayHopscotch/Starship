@@ -49,6 +49,7 @@ class Ship extends FlxNapeSprite {
 
 		var body = new Body(BodyType.DYNAMIC);
 		body.shapes.add(new Polygon(Polygon.regular(40, 20, 3)));
+
 		var shipFilter = new InteractionFilter(CollisionGroups.SHIP, ~(CollisionGroups.CARGO));
 		body.setShapeFilters(shipFilter);
 
@@ -85,15 +86,15 @@ class Ship extends FlxNapeSprite {
 			FlxG.watch.addQuick("Steering     : ", controls.steer.x);
 			body.angularVel = TURN_POWER * Math.pow(controls.steer.x, 3);
 		}
-		FlxG.watch.addQuick("AngrlarVel     : ", body.angularVel);
-		FlxG.watch.addQuick("Net Force      : ", body.totalImpulse());
+		// FlxG.watch.addQuick("AngrlarVel     : ", body.angularVel);
+		// FlxG.watch.addQuick("Net Force      : ", body.totalImpulse());
 
 		if (Math.abs(controls.grappleAdjust.y) > 0.1) {
-			FlxG.watch.addQuick("GrappleAdjust: ", controls.grappleAdjust.y);
+			// FlxG.watch.addQuick("GrappleAdjust: ", controls.grappleAdjust.y);
 			if (jointed) {
 				joint.jointMax += grappleRate * elapsed * controls.grappleAdjust.y;
 				joint.jointMax = Math.max(MIN_TOW_DISTANCE, joint.jointMax);
-				FlxG.watch.addQuick("Tow Length    : ", joint.jointMax);
+				// FlxG.watch.addQuick("Tow Length    : ", joint.jointMax);
 			}
 		}
 
