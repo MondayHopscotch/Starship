@@ -108,6 +108,7 @@ class Ship extends FlxNapeSprite {
 		if (controls.toggleGrapple.check()) {
 			if (jointed) {
 				joint.active = false;
+				cast(joint.body2.userData.data, Towable).outOfTow();
 				joint.body2 = null;
 				jointed = false;
 			} else {

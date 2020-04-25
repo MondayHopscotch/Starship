@@ -115,9 +115,7 @@ class Wall extends FlxTypedGroup<FlxNapeSprite> {
 
 		knobOriginalPos = new Vec2().set(knob.body.position);
 
-		knob.body.setShapeFilters(new InteractionFilter(CollisionGroups.CARGO, ~(CollisionGroups.SHIP | CollisionGroups.TERRAIN)));
-		knob.body.cbTypes.add(CbTypes.CB_CARGO);
-		knob.body.allowRotation = false;
+		knob.set();
 
 		var knobJointPos = Vec2.get(x - 5, segmentHeight + hatchHeight);
 
