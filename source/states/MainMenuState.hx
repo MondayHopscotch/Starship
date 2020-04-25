@@ -15,7 +15,7 @@ class MainMenuState extends FlxState {
 		FlxG.debugger.visible = true;
 		bgColor = FlxColor.TRANSPARENT;
 
-		_btnPlay = new FlxButton(0, 0, "Cargo", () -> FlxG.switchState(new PlayState()));
+		_btnPlay = new FlxButton(0, 0, "Cargo", () -> FlxG.switchState(new CargoState()));
 		_btnPlay.updateHitbox();
 		_btnPlay.screenCenter();
 		add(_btnPlay);
@@ -25,5 +25,11 @@ class MainMenuState extends FlxState {
 		_btnWall.screenCenter();
 		_btnWall.y += 30;
 		add(_btnWall);
+
+		var _btnConstraints = new FlxButton(0, 0, "Constraints", () -> FlxG.switchState(new ConstraintsTestState()));
+		_btnConstraints.updateHitbox();
+		_btnConstraints.screenCenter();
+		_btnConstraints.y += 60;
+		add(_btnConstraints);
 	}
 }

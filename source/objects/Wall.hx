@@ -34,6 +34,8 @@ class Wall extends FlxTypedGroup<FlxNapeSprite> {
 	var rando:FlxRandom = new FlxRandom(100);
 
 	var knob:Towable = null;
+	var knobWorldJoint:PivotJoint;
+
 	var knobMaxLife:Float = 10.0;
 	var knobLife:Float = 10.0;
 	var restoreRate:Float = 5;
@@ -76,13 +78,13 @@ class Wall extends FlxTypedGroup<FlxNapeSprite> {
 		topHatch.body.type = BodyType.DYNAMIC;
 		topHatch.body.setShapeFilters(new InteractionFilter((CollisionGroups.SHIP | CollisionGroups.CARGO), ~(CollisionGroups.TERRAIN)));
 
-		// bottomHatch = new FlxNapeSprite();
-		// bottomHatch.loadGraphic(AssetPaths.debug_square_red__png);
-		// bottomHatch.setPosition(x, segmentHeight + hatchHeight + hatchHeight / 2);
-		// bottomHatch.createRectangularBody(10, hatchHeight);
-		// bottomHatch.scale.set(10 / 3, hatchHeight / 3);
-		// bottomHatch.body.type = BodyType.DYNAMIC;
-		// bottomHatch.body.setShapeFilters(new InteractionFilter((CollisionGroups.SHIP | CollisionGroups.CARGO), ~(CollisionGroups.TERRAIN)));
+		bottomHatch = new FlxNapeSprite();
+		bottomHatch.loadGraphic(AssetPaths.debug_square_red__png);
+		bottomHatch.setPosition(x, segmentHeight + hatchHeight + hatchHeight / 2);
+		bottomHatch.createRectangularBody(10, hatchHeight);
+		bottomHatch.scale.set(10 / 3, hatchHeight / 3);
+		bottomHatch.body.type = BodyType.DYNAMIC;
+		bottomHatch.body.setShapeFilters(new InteractionFilter((CollisionGroups.SHIP | CollisionGroups.CARGO), ~(CollisionGroups.TERRAIN)));
 
 		var topPivot = Vec2.get(x - 5, segmentHeight);
 
@@ -93,12 +95,10 @@ class Wall extends FlxTypedGroup<FlxNapeSprite> {
 
 		var bottomPivot = Vec2.get(x - 5, FlxG.height - segmentHeight);
 
-		// var bottomHatchJoint = new PivotJoint(bottom.body, bottomHatch.body, bottom.body.worldPointToLocal(bottomPivot),
-		// 	bottomHatch.body.worldPointToLocal(bottomPivot));
-		// bottomHatchJoint.space = FlxNapeSpace.space;
-		// joints.push(bottomHatchJoint);
-
-		// hatchOriginalPos = new Vec2().set(hatch.body.position);
+		var bottomHatchJoint = new PivotJoint(bottom.body, bottomHatch.body, bottom.body.worldPointToLocal(bottomPivot),
+			bottomHatch.body.worldPointToLocal(bottomPivot));
+		bottomHatchJoint.space = FlxNapeSpace.space;
+		joints.push(bottomHatchJoint);
 
 		knob = new Towable();
 		var knobRadius = 10;
@@ -117,21 +117,25 @@ class Wall extends FlxTypedGroup<FlxNapeSprite> {
 
 		knob.body.setShapeFilters(new InteractionFilter(CollisionGroups.CARGO, ~(CollisionGroups.SHIP | CollisionGroups.TERRAIN)));
 		knob.body.cbTypes.add(CbTypes.CB_CARGO);
+		knob.body.allowRotation = false;
 
 		var knobJointPos = Vec2.get(x - 5, segmentHeight + hatchHeight);
 
 		var knobTopJoint = new LineJoint(knob.body, topHatch.body, knob.body.worldPointToLocal(knobJointPos, true),
-			topHatch.body.worldPointToLocal(knobJointPos, true), Vec2.weak(1, -1), -10, 10);
-		// var knobTopJoint = new PivotJoint(topHatch.body, knob.body, topHatch.body.worldPointToLocal(knobJointPos, true),
-		// 	knob.body.worldPointToLocal(knobJointPos, true));
+			topHatch.body.worldPointToLocal(knobJointPos, true), Vec2.weak(0, -1), -30, 30);
 		knobTopJoint.stiff = false;
 		knobTopJoint.space = FlxNapeSpace.space;
 		joints.push(knobTopJoint);
 
-		// var knobBottomJoint = new PivotJoint(knob.body, bottomHatch.body, knob.body.worldPointToLocal(knobJointPos),
-		// 	bottomHatch.body.worldPointToLocal(knobJointPos));
-		// knobBottomJoint.space = FlxNapeSpace.space;
-		// joints.push(knobBottomJoint);
+		var knobBottomJoint = new LineJoint(knob.body, bottomHatch.body, knob.body.worldPointToLocal(knobJointPos, true),
+			bottomHatch.body.worldPointToLocal(knobJointPos, true), Vec2.weak(0, 1), -30, 30);
+		knobBottomJoint.stiff = false;
+		knobBottomJoint.space = FlxNapeSpace.space;
+		joints.push(knobBottomJoint);
+
+		knobWorldJoint = new PivotJoint(FlxNapeSpace.space.world, knob.body, knob.body.position, Vec2.weak());
+		knobWorldJoint.space = FlxNapeSpace.space;
+		joints.push(knobWorldJoint);
 
 		add(knob);
 	}
@@ -144,7 +148,7 @@ class Wall extends FlxTypedGroup<FlxNapeSprite> {
 		if (knob.alive) {
 			var offsetAmount = Vec2.weak().setxy(-knobFlex, 0).mul(1 - (knobLife / knobMaxLife));
 			FlxG.watch.addQuick("Knob offset: ", offsetAmount);
-			// knob.body.position.set(Vec2.weak().set(knobOriginalPos).add(offsetAmount));
+			knobWorldJoint.anchor1.set(Vec2.weak().set(knobOriginalPos).add(offsetAmount));
 		}
 
 		if (knob.activeJoint != null) {
@@ -169,6 +173,9 @@ class Wall extends FlxTypedGroup<FlxNapeSprite> {
 		if (knobLife < knobMaxLife) {
 			FlxG.watch.addQuick("Knob regen: ", true);
 			knobLife += restoreRate * delta;
+		} else {
+			topHatch.body.rotation = 0;
+			bottomHatch.body.rotation = 0;
 		}
 	}
 }

@@ -3,9 +3,9 @@ package;
 import flixel.FlxG;
 import flixel.FlxGame;
 import openfl.display.Sprite;
+import states.CargoState;
 import states.DestructableObjects;
 import states.MainMenuState;
-import states.PlayState;
 
 class Main extends Sprite {
 	public function new() {

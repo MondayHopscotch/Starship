@@ -14,7 +14,7 @@ import nape.phys.Body;
 import nape.phys.BodyType;
 import nape.shape.Polygon;
 
-class PlayState extends FlxState {
+class CargoState extends FlxState {
 	var ship:FlxNapeSprite;
 
 	// Units: Pixels/sec/sec
