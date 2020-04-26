@@ -11,6 +11,7 @@ import nape.callbacks.InteractionCallback;
 import nape.callbacks.InteractionListener;
 import nape.callbacks.InteractionType;
 import nape.constraint.DistanceJoint;
+import nape.constraint.PulleyJoint;
 import nape.dynamics.InteractionFilter;
 import nape.geom.Ray;
 import nape.geom.RayResult;
@@ -40,6 +41,8 @@ class Ship extends FlxNapeSprite {
 
 	var jointed:Bool = false;
 	var joint:DistanceJoint = null;
+	var pullied:Bool = false;
+	var pulley:PulleyJoint = null;
 
 	public function new(x:Int, y:Int) {
 		super();
@@ -99,11 +102,15 @@ class Ship extends FlxNapeSprite {
 			}
 		}
 
-		if (jointed && !joint.active) {
-			// body has been destroyed
-			joint.active = false;
-			joint.body2 = null;
-			jointed = false;
+		if (jointed) {
+			if (!joint.active) {
+				// body has been destroyed
+				joint.active = false;
+				joint.body2 = null;
+				jointed = false;
+			} else {
+				updateRope();
+			}
 		}
 
 		if (controls.toggleGrapple.check()) {
@@ -155,6 +162,73 @@ class Ship extends FlxNapeSprite {
 			cargo.inTow(joint);
 			return true;
 		}
+	}
+
+	public function updateRope() {
+		if (pulley == null) {
+			pulley = new PulleyJoint(this.body, this.body, this.body, this.body, Vec2.weak(), Vec2.weak(), Vec2.weak(), Vec2.weak(), MIN_TOW_DISTANCE,
+				MAX_TOW_DISTANCE, 1);
+			pulley.active = false;
+			pulley.space = FlxNapeSpace.space;
+		}
+
+		var ray = Ray.fromSegment(Vec2.get().set(body.position), Vec2.get().set(joint.body2.position));
+		var result:RayResult = FlxNapeSpace.space.rayCast(ray, false, new InteractionFilter(CollisionGroups.TERRAIN, CollisionGroups.TERRAIN));
+
+		if (pullied && !isPulleyClear()) {
+			return;
+		}
+
+		if (result != null) {
+			FlxG.watch.addQuick("Rope contact: ", true);
+		} else {
+			FlxG.watch.addQuick("Rope contact: ", false);
+		}
+
+		if (result == null && pullied) {
+			FlxG.log.notice("removing pulley");
+			pullied = false;
+			pulley.active = false;
+			return;
+		} else if (result != null && !pullied) {
+			FlxG.log.notice("attaching pulley");
+			pullied = true;
+			pulley.active = true;
+			pulley.body1 = body;
+			pulley.body2 = result.shape.body;
+			pulley.body3 = result.shape.body;
+			pulley.body4 = joint.body2;
+
+			pulley.anchor1 = joint.anchor1;
+			// pulley.anchor2 = ray.at(result.distance).sub(Vec2.weak().set(result.shape.body.position)).rotate(-result.shape.body.rotation);
+			pulley.anchor2 = getLocalPointOnBody(result.shape.body, ray.at(result.distance));
+			// pulley.anchor3 = ray.at(result.distance).sub(Vec2.weak().set(result.shape.body.position)).rotate(-result.shape.body.rotation);
+			pulley.anchor3 = getLocalPointOnBody(result.shape.body, ray.at(result.distance));
+			pulley.anchor4 = joint.anchor2;
+		}
+	}
+
+	function getLocalPointOnBody(b:Body, worldPoint:Vec2):Vec2 {
+		return worldPoint.copy().sub(Vec2.weak().set(b.position)).rotate(-b.rotation);
+	}
+
+	function getWorldPointFromBody(b:Body, localPoint:Vec2):Vec2 {
+		return localPoint.copy().rotate(b.rotation).add(b.position);
+	}
+
+	function isPulleyClear():Bool {
+		// return true;
+		var final1 = checkPulleyContact(joint.body1, joint.anchor1, pulley.body2, pulley.anchor2);
+		var final2 = checkPulleyContact(joint.body2, joint.anchor2, pulley.body3, pulley.anchor3);
+		FlxG.watch.addQuick("Ship-pulley clear: ", final1);
+		FlxG.watch.addQuick("Cargo-pulley clear: ", final2);
+		return final1 && final2;
+	}
+
+	function checkPulleyContact(body:Body, bodyAnchor:Vec2, pullyBody:Body, pulleyAchor:Vec2):Bool {
+		var ray = Ray.fromSegment(getWorldPointFromBody(joint.body1, joint.anchor1), getWorldPointFromBody(pulley.body2, pulley.anchor2));
+		var result:RayResult = FlxNapeSpace.space.rayCast(ray, false, new InteractionFilter(CollisionGroups.TERRAIN, CollisionGroups.TERRAIN));
+		return result == null || (result.distance / ray.maxDistance) > 0.95;
 	}
 
 	public function cargoEnterRangeCallback(clbk:InteractionCallback) {
