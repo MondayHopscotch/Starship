@@ -1,11 +1,10 @@
-package entities;
+package objects;
 
 import constants.CbTypes;
 import constants.CollisionGroups;
 import flixel.FlxG;
 import flixel.addons.nape.FlxNapeSpace;
 import flixel.addons.nape.FlxNapeSprite;
-import haxe.ds.WeakMap;
 import input.BasicControls;
 import nape.callbacks.CbEvent;
 import nape.callbacks.InteractionCallback;
@@ -21,7 +20,6 @@ import nape.phys.BodyType;
 import nape.phys.Material;
 import nape.shape.Circle;
 import nape.shape.Polygon;
-import objects.Cargo;
 import objects.Towable;
 
 class Ship extends FlxNapeSprite {
@@ -30,7 +28,8 @@ class Ship extends FlxNapeSprite {
 	static inline var RADIANS_PER_DEGREE:Float = 0.0174533;
 
 	var controls:BasicControls;
-	var enginePower:Vec2 = Vec2.get().setxy(500, 0);
+
+	public var enginePower:Vec2 = Vec2.get().setxy(500, 0);
 
 	var validCargoTargets:Array<Towable> = [];
 	// Units: Pixels/sec
@@ -44,7 +43,7 @@ class Ship extends FlxNapeSprite {
 
 	public function new(x:Int, y:Int) {
 		super();
-		setPosition(300, 300);
+		setPosition(x, y);
 		loadGraphic(AssetPaths.shot__png);
 
 		controls = new BasicControls();

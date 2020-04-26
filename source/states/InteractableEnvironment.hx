@@ -2,7 +2,6 @@ package states;
 
 import constants.CbTypes;
 import constants.CollisionGroups;
-import entities.Ship;
 import flixel.FlxG;
 import flixel.FlxState;
 import flixel.addons.nape.FlxNapeSpace;
@@ -14,6 +13,7 @@ import nape.phys.Body;
 import nape.phys.BodyType;
 import nape.shape.Polygon;
 import objects.Cargo;
+import objects.Ship;
 import objects.SwitchWall;
 import objects.Wall;
 

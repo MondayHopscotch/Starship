@@ -2,7 +2,7 @@ package states;
 
 import constants.CbTypes;
 import constants.CollisionGroups;
-import entities.Ship;
+import objects.Ship;
 import flixel.FlxG;
 import flixel.FlxState;
 import flixel.addons.nape.FlxNapeSpace;

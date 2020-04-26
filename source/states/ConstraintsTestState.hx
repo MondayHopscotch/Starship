@@ -2,7 +2,6 @@ package states;
 
 import constants.CbTypes;
 import constants.CollisionGroups;
-import entities.Ship;
 import flash.text.TextField;
 import flash.text.TextFormat;
 import flash.text.TextFormatAlign;
@@ -31,6 +30,7 @@ import nape.phys.BodyType;
 import nape.shape.Circle;
 import nape.shape.Polygon;
 import nape.shape.Polygon;
+import objects.Ship;
 
 // Template class is used so that this sample may
 // be as concise as possible in showing Nape features without

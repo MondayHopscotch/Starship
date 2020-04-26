@@ -3,6 +3,7 @@ package objects;
 import constants.CbTypes;
 import constants.CollisionGroups;
 import flixel.FlxG;
+import flixel.addons.nape.FlxNapeSpace;
 import flixel.addons.nape.FlxNapeSprite;
 import nape.constraint.DistanceJoint;
 import nape.dynamics.InteractionFilter;
@@ -20,6 +21,7 @@ class Towable extends FlxNapeSprite {
 		body.cbTypes.add(CbTypes.CB_CARGO);
 		body.allowRotation = false;
 		body.userData.data = this;
+		body.space = FlxNapeSpace.space;
 	}
 
 	public function inTow(joint:DistanceJoint) {
