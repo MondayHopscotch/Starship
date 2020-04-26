@@ -13,6 +13,7 @@ import nape.geom.Vec2;
 import nape.phys.Body;
 import nape.phys.BodyType;
 import nape.shape.Polygon;
+import objects.Cargo;
 import objects.SwitchWall;
 import objects.Wall;
 
@@ -40,8 +41,10 @@ class InteractableEnvironment extends FlxState {
 		add(wall);
 
 		// var lever = new SwitchWall(cast(FlxG.width / 4, Int), FlxG.height);
-		var lever = new SwitchWall(100, FlxG.height);
+		var lever = new SwitchWall(200, FlxG.height, true);
 		add(lever);
+
+		add(Cargo.create(AssetPaths.debug_square_red__png, 5, FlxG.height - 5, 10));
 	}
 
 	override public function update(elapsed:Float) {

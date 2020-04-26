@@ -5,6 +5,7 @@ import constants.CollisionGroups;
 import flixel.FlxG;
 import flixel.addons.nape.FlxNapeSpace;
 import flixel.addons.nape.FlxNapeSprite;
+import haxe.ds.WeakMap;
 import input.BasicControls;
 import nape.callbacks.CbEvent;
 import nape.callbacks.InteractionCallback;
@@ -20,6 +21,7 @@ import nape.phys.BodyType;
 import nape.phys.Material;
 import nape.shape.Circle;
 import nape.shape.Polygon;
+import objects.Cargo;
 import objects.Towable;
 
 class Ship extends FlxNapeSprite {
@@ -78,12 +80,12 @@ class Ship extends FlxNapeSprite {
 		}
 
 		if (controls.thruster.x > 0.1) {
-			FlxG.watch.addQuick("Thruster     : ", controls.thruster.x);
+			// FlxG.watch.addQuick("Thruster     : ", controls.thruster.x);
 			body.applyImpulse(Vec2.weak().set(enginePower).mul(elapsed).mul(controls.thruster.x).rotate(body.rotation));
 		}
 
 		if (Math.abs(controls.steer.x) > 0.1) {
-			FlxG.watch.addQuick("Steering     : ", controls.steer.x);
+			// FlxG.watch.addQuick("Steering     : ", controls.steer.x);
 			body.angularVel = TURN_POWER * Math.pow(controls.steer.x, 3);
 		}
 		// FlxG.watch.addQuick("AngrlarVel     : ", body.angularVel);
@@ -106,30 +108,27 @@ class Ship extends FlxNapeSprite {
 		}
 
 		if (controls.toggleGrapple.check()) {
+			FlxG.log.notice("Tow toggled");
 			if (jointed) {
 				joint.active = false;
 				cast(joint.body2.userData.data, Towable).outOfTow();
 				joint.body2 = null;
 				jointed = false;
 			} else {
-				var shortestDist = Math.POSITIVE_INFINITY;
-				var validTarget:Towable = null;
+				validCargoTargets.sort((t1,
+						t2) -> return Math.floor(Math.abs(Vec2.distance(this.body.position,
+						t2.body.position) - Vec2.distance(this.body.position, t1.body.position))));
 				for (c in validCargoTargets) {
-					var cDist = c.getPosition().distanceTo(getPosition());
-					if (cDist < shortestDist) {
-						shortestDist = cDist;
-						validTarget = c;
+					if (tetherCargo(c)) {
+						return;
 					}
 				}
-
-				if (shortestDist != Math.POSITIVE_INFINITY) {
-					tetherCargo(validTarget);
-				}
+				FlxG.log.notice("no tow in range");
 			}
 		}
 	}
 
-	function tetherCargo(cargo:Towable) {
+	function tetherCargo(cargo:Towable):Bool {
 		if (joint == null) {
 			joint = new DistanceJoint(body, cargo.body, Vec2.weak(0, 0), Vec2.weak().setxy(0, 0), MIN_TOW_DISTANCE, MAX_TOW_DISTANCE);
 			joint.stiff = false;
@@ -138,20 +137,24 @@ class Ship extends FlxNapeSprite {
 			joint.space = FlxNapeSpace.space;
 			joint.breakUnderError = true;
 			joint.active = false;
-			cargo.inTow(joint);
+		}
+		var ray = Ray.fromSegment(Vec2.get().set(body.position), Vec2.get().set(cargo.body.position));
+		var result:RayResult = FlxNapeSpace.space.rayCast(ray, false, new InteractionFilter(CollisionGroups.ALL, CollisionGroups.ALL));
+
+		if (result == null) {
+			FlxG.log.notice("no valid tow result");
+			return false;
+		} else if (!Std.is(result.shape.body.userData.data, Towable)) {
+			FlxG.log.notice("nearest target is type: " + Type.typeof(result.shape.body.userData.data));
+			return false;
 		} else {
-			joint.body2 = cargo.body;
-			joint.active = true;
 			jointed = true;
-
+			joint.active = true;
+			joint.body2 = cargo.body;
 			joint.jointMax = MAX_TOW_DISTANCE;
-
-			var ray = Ray.fromSegment(new Vec2().setxy(x, y), new Vec2().setxy(cargo.x, cargo.y));
-			var result:RayResult = FlxNapeSpace.space.rayCast(ray, false, new InteractionFilter(CollisionGroups.CARGO, CollisionGroups.CARGO));
-			if (result != null) {
-				joint.anchor2.set(ray.at(result.distance).sub(Vec2.weak().setxy(cargo.x, cargo.y)).rotate(-cargo.angle * RADIANS_PER_DEGREE));
-				cargo.inTow(joint);
-			}
+			joint.anchor2.set(ray.at(result.distance).sub(Vec2.weak().set(cargo.body.position)).rotate(-cargo.body.rotation));
+			cargo.inTow(joint);
+			return true;
 		}
 	}
 

@@ -22,6 +22,10 @@ using extensions.FlxObjectExt;
 class SwitchWall extends FlxTypedGroup<FlxNapeSprite> {
 	var base:FlxNapeSprite;
 	var knob:Towable;
+	var reactor:FlxNapeSprite;
+	var reactorDirection:Vec2;
+	var reactorDistance:Float;
+	var reactorOriginalPos:Vec2;
 
 	var wall:FlxNapeSprite;
 
@@ -36,8 +40,9 @@ class SwitchWall extends FlxTypedGroup<FlxNapeSprite> {
 	var restoreRate:Float = 3;
 
 	var maxImpulseDamage:Float = 100;
+	var saveProgress:Bool = false;
 
-	public function new(x:Int, y:Int) {
+	public function new(x:Int, y:Int, saveProgress:Bool = false) {
 		super();
 
 		joints = new Array<Constraint>();
@@ -70,17 +75,39 @@ class SwitchWall extends FlxTypedGroup<FlxNapeSprite> {
 		joints.push(knobJoint);
 
 		base.body.rotation = startAngle;
+
+		reactor = new FlxNapeSprite();
+		reactor.loadGraphic(AssetPaths.debug_square_blue__png);
+		reactor.scale.set(knobRadius * 2 / 32, knobRadius * 2 / 32);
+		reactor.createRectangularBody(10, 100, BodyType.KINEMATIC);
+		reactor.body.position.setxy(25, FlxG.height - 25);
+		reactor.body.rotation = -Math.PI * 0.25;
+		reactor.body.type = BodyType.KINEMATIC;
+
+		reactorOriginalPos = Vec2.get().set(reactor.body.position);
+		reactorDirection = Vec2.get(-1, -1).normalise();
+		reactorDistance = 100;
+
+		add(reactor);
 	}
 
 	override public function update(delta:Float) {
 		super.update(delta);
 
+		FlxG.watch.addQuick("Reactor rotation: ", reactor.body.rotation);
 		FlxG.watch.addQuick("Switch percent: ", switchLife);
 
 		if (knob.alive) {
 			var offsetAmount = -totalAngle * (1 - (switchLife / switchMaxLife));
 			FlxG.watch.addQuick("Switch offset: ", offsetAmount);
 			base.body.rotation = startAngle + offsetAmount;
+
+			var reactorOffset = reactorDistance * (1 - (switchLife / switchMaxLife));
+			reactor.body.position.set(reactorOriginalPos.copy(true).add(reactorDirection.copy().mul(reactorOffset)));
+
+			if (saveProgress && switchLife < switchMaxLife) {
+				switchLife += restoreRate * delta;
+			}
 		}
 
 		if (knob.activeJoint != null) {
@@ -92,10 +119,6 @@ class SwitchWall extends FlxTypedGroup<FlxNapeSprite> {
 			}
 
 			switchLife = Math.min(switchMaxLife, Math.max(0, switchLife));
-		}
-
-		if (switchLife < switchMaxLife) {
-			switchLife += restoreRate * delta;
 		}
 	}
 }

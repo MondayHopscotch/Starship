@@ -103,7 +103,7 @@ class Wall extends FlxTypedGroup<FlxNapeSprite> {
 		knob = new Towable();
 		var knobRadius = 10;
 
-		var knobPosition = Vec2.get(x - 5, segmentHeight + hatchHeight);
+		var knobPosition = Vec2.get(x - 7, segmentHeight + hatchHeight);
 
 		knob.loadGraphic(AssetPaths.shot__png);
 		knob.scale.set(knobRadius * 2 / 32, knobRadius * 2 / 32);
@@ -141,18 +141,18 @@ class Wall extends FlxTypedGroup<FlxNapeSprite> {
 	override public function update(delta:Float) {
 		super.update(delta);
 
-		FlxG.watch.addQuick("Hatch life: ", knobLife);
+		// FlxG.watch.addQuick("Hatch life: ", knobLife);
 
 		if (knob.alive) {
 			var offsetAmount = Vec2.weak().setxy(-knobFlex, 0).mul(1 - (knobLife / knobMaxLife));
-			FlxG.watch.addQuick("Knob offset: ", offsetAmount);
+			// FlxG.watch.addQuick("Knob offset: ", offsetAmount);
 			knobWorldJoint.anchor1.set(Vec2.weak().set(knobOriginalPos).add(offsetAmount));
 		}
 
 		if (knob.activeJoint != null) {
-			FlxG.watch.addQuick("Knob regen: ", false);
+			// FlxG.watch.addQuick("Knob regen: ", false);
 			if (knob.activeJoint.body1 == knob.body || knob.activeJoint.body2 == knob.body) {
-				FlxG.watch.addQuick("Knob joint imp: ", knob.activeJoint.bodyImpulse(knob.body));
+				// FlxG.watch.addQuick("Knob joint imp: ", knob.activeJoint.bodyImpulse(knob.body));
 
 				knobLife -= Math.min(maxImpulseDamage, knob.activeJoint.bodyImpulse(knob.body).length) * delta;
 			}
@@ -169,7 +169,7 @@ class Wall extends FlxTypedGroup<FlxNapeSprite> {
 		}
 
 		if (knobLife < knobMaxLife) {
-			FlxG.watch.addQuick("Knob regen: ", true);
+			// FlxG.watch.addQuick("Knob regen: ", true);
 			knobLife += restoreRate * delta;
 		} else {
 			topHatch.body.rotation = 0;
