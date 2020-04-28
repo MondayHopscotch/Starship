@@ -24,6 +24,7 @@ class MainMenuState extends FlxState {
 		addButton(new FlxButton(0, 0, "Constraints", () -> FlxG.switchState(new ConstraintsTestState())));
 		addButton(new FlxButton(0, 0, "Low Power", () -> FlxG.switchState(new LowPower())));
 		addButton(new FlxButton(0, 0, "Rope Bend", () -> FlxG.switchState(new RopeBend())));
+		addButton(new FlxButton(0, 0, "Rope Test", () -> FlxG.switchState(new RopeTestBed())));
 	}
 
 	function addButton(b:FlxButton) {

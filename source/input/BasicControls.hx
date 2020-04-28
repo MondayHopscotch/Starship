@@ -13,11 +13,14 @@ class BasicControls {
 	public var grappleAdjust:FlxActionAnalog;
 	public var toggleGrapple:FlxActionDigital;
 
+	public var pause:FlxActionDigital;
+
 	public function new() {
 		thruster = new FlxActionAnalog("thruster");
 		steer = new FlxActionAnalog("steer");
 		grappleAdjust = new FlxActionAnalog("grappleAdjust");
 		toggleGrapple = new FlxActionDigital("toggleGrapple");
+		pause = new FlxActionDigital("pause");
 
 		if (actions == null) {
 			actions = FlxG.inputs.add(new FlxActionManager());
@@ -35,5 +38,6 @@ class BasicControls {
 		steer.addGamepad(LEFT_ANALOG_STICK, MOVED);
 		grappleAdjust.addGamepad(RIGHT_ANALOG_STICK, MOVED);
 		toggleGrapple.addGamepad(B, JUST_PRESSED);
+		pause.addGamepad(LEFT_SHOULDER, JUST_PRESSED);
 	}
 }

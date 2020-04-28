@@ -17,6 +17,7 @@ class Cargo extends Towable {
 		cargo.scale.set(size / 3, size / 3);
 
 		var cargoBody = new Body(BodyType.DYNAMIC);
+		cargoBody.isBullet = true;
 		cargoBody.shapes.add(new Polygon(Polygon.rect(-size / 2, -size / 2, size, size)));
 		cargoBody.mass *= 5;
 		cargoBody.userData.data = cargo;

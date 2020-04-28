@@ -2,7 +2,6 @@ package states;
 
 import constants.CbTypes;
 import constants.CollisionGroups;
-import objects.Ship;
 import flixel.FlxG;
 import flixel.FlxState;
 import flixel.addons.nape.FlxNapeSpace;
@@ -14,6 +13,7 @@ import nape.phys.Body;
 import nape.phys.BodyType;
 import nape.shape.Polygon;
 import objects.Cargo;
+import objects.Ship;
 
 class CargoState extends FlxState {
 	var ship:FlxNapeSprite;
@@ -35,7 +35,7 @@ class CargoState extends FlxState {
 		ship = new Ship(300, 300);
 		add(ship);
 
-		add(Cargo.create(AssetPaths.debug_square_red__png, 50, FlxG.height - 50, 20));
+		add(Cargo.create(AssetPaths.debug_square_red__png, 50, FlxG.height - 50, 15));
 		add(Cargo.create(AssetPaths.debug_square_blue__png, FlxG.width - 50, FlxG.height - 50, 10));
 
 		createBucket(AssetPaths.debug_square_blue__png, 50, FlxG.height - 50, 50, 50);
