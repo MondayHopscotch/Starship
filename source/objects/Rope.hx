@@ -9,8 +9,10 @@ import nape.constraint.PulleyJoint;
 import nape.dynamics.InteractionFilter;
 import nape.geom.Ray;
 import nape.geom.RayResult;
+import nape.geom.RayResultList;
 import nape.geom.Vec2;
 import nape.geom.Vec2List;
+import nape.phys.Body;
 import nape.shape.Polygon;
 
 using extensions.BodyExt;
@@ -35,7 +37,6 @@ class Rope {
 		objA = a;
 		objB = b;
 		maxLength = length;
-		attached = true;
 
 		if (ends == null) {
 			ends = new DistanceJoint(a.body, b.body, aAnchor, bAnchor, 0, maxLength);
@@ -49,11 +50,18 @@ class Rope {
 		}
 		b.inTow(ends);
 
+		var fillerBody1 = new Body();
+		var fillerBody2 = new Body();
+
 		if (pulley == null) {
-			pulley = new PulleyJoint(a.body, a.body, b.body, b.body, aAnchor, aAnchor, bAnchor, bAnchor, 0, maxLength, 1);
+			// to get around limitations of how this can be constructed, we are criss-crossing the bodies
+			pulley = new PulleyJoint(a.body, b.body, a.body, b.body, aAnchor, bAnchor, aAnchor, bAnchor, 0, maxLength, 1);
 			pulley.active = false;
 			pulley.space = FlxNapeSpace.space;
 		}
+		attached = true;
+		ends.active = true;
+		ends.space = FlxNapeSpace.space;
 	}
 
 	public function detach() {
@@ -76,7 +84,7 @@ class Rope {
 		}
 
 		var e2eRay = Ray.fromSegment(Vec2.get().set(ends.body1.position), Vec2.get().set(ends.body2.position));
-		var e2eResult:RayResult = FlxNapeSpace.space.rayCast(e2eRay, false, new InteractionFilter(CollisionGroups.TERRAIN, CollisionGroups.TERRAIN));
+		var e2eResult:RayResult = FlxNapeSpace.space.rayCast(e2eRay, false, new InteractionFilter(CollisionGroups.TERRAIN, CollisionGroups.TERRAIN, 0, 0));
 
 		if (segments.length == 0) {
 			if (e2eResult == null) {
@@ -87,6 +95,7 @@ class Rope {
 			FlxG.watch.addQuick("Rope contact: ", true);
 			FlxG.log.notice("attaching pulley");
 			pulley.active = true;
+			pulley.space = FlxNapeSpace.space;
 			pulley.body1 = ends.body1;
 			pulley.body2 = e2eResult.shape.body;
 			pulley.body3 = e2eResult.shape.body;
@@ -102,6 +111,9 @@ class Rope {
 		}
 
 		FlxG.watch.addQuick("Rope segments:", segments.length);
+		// for (s in segments) {
+		// 	trace("(" + s.contact1.body + "->" + s.contact2.body + ")");
+		// }
 		// no points of contact end to end, and only one rope touchpoint. This means we are no longer pullied
 		if (e2eResult == null && segments.length == 2) {
 			// TODO: Simplify this... please.
@@ -129,6 +141,8 @@ class Rope {
 		var end:RopeContactPoint = segments[0].contact2;
 		var contact:RopeContactPoint = castRope(start, end);
 		if (contact != null) {
+			// trace("-----adding new start-end segment-----");
+			// trace("--replacing: " + start.body + "->" + end.body + ")");
 			segments.remove(segments[0]);
 			var toEnd = RopeSegment.fromContacts(contact, end);
 			segments.unshift(toEnd);
@@ -137,14 +151,18 @@ class Rope {
 			pulley.body2 = contact.body;
 			pulley.anchor2 = contact.point;
 			pulley.jointMax = getRopeLooseLength();
-			trace("new segments added: " + toStart.contact1.body + " -> " + toStart.contact2.body);
-			trace("new segments added: " + toEnd.contact1.body + " -> " + toEnd.contact2.body);
+
+			// trace("new segments added: " + toStart.contact1.body + " -> " + toStart.contact2.body);
+			// trace("new segments added: " + toEnd.contact1.body + " -> " + toEnd.contact2.body);
+			// trace("");
 		}
 		// look for new contact points between last contact and the end of the rope
 		start = segments[segments.length - 1].contact1;
 		end = segments[segments.length - 1].contact2;
 		contact = castRope(end, start);
 		if (contact != null) {
+			// trace("-----adding new tail-end segment-----");
+			// trace("--replacing: " + start.body + "->" + end.body + ")");
 			segments.remove(segments[segments.length - 1]);
 			var toStart = RopeSegment.fromContacts(start, contact);
 			segments.push(toStart);
@@ -153,8 +171,9 @@ class Rope {
 			pulley.body3 = contact.body;
 			pulley.anchor3 = contact.point;
 			pulley.jointMax = getRopeLooseLength();
-			trace("new segments added: " + toStart.contact1.body + " -> " + toStart.contact2.body);
-			trace("new segments added: " + toEnd.contact1.body + " -> " + toEnd.contact2.body);
+			// trace("new segments added: " + toStart.contact1.body + " -> " + toStart.contact2.body);
+			// trace("new segments added: " + toEnd.contact1.body + " -> " + toEnd.contact2.body);
+			// trace("");
 		}
 
 		// check for lost contact
@@ -224,8 +243,27 @@ class Rope {
 		var startWorldPoint = start.body.getWorldPoint(start.point);
 		var endWorldPoint = end.body.getWorldPoint(end.point);
 
+		if (startWorldPoint.x == endWorldPoint.x && startWorldPoint.y == endWorldPoint.y) {
+			trace("samsies");
+		}
+
 		var ray = Ray.fromSegment(startWorldPoint, endWorldPoint);
-		var result:RayResult = FlxNapeSpace.space.rayCast(ray, true, new InteractionFilter(CollisionGroups.TERRAIN, CollisionGroups.TERRAIN));
+		var results:RayResultList = FlxNapeSpace.space.rayMultiCast(ray, true, new InteractionFilter(CollisionGroups.TERRAIN, CollisionGroups.TERRAIN, 0, 0));
+		if (results == null || results.length == 0) {
+			return null;
+		}
+
+		var result:RayResult = null;
+
+		for (r in results) {
+			// not sure how to make this not collide with the ship sensor
+			// so... we'll just ignore sensors explicitly
+			if (!r.shape.sensorEnabled) {
+				result = r;
+				break;
+			}
+		}
+
 		if (result == null) {
 			return null;
 		}

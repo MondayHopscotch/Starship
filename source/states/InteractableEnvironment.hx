@@ -18,7 +18,7 @@ import objects.SwitchWall;
 import objects.Wall;
 
 class InteractableEnvironment extends FlxState {
-	var ship:FlxNapeSprite;
+	var ship:Ship;
 
 	// Units: Pixels/sec/sec
 	var gravity:Vec2 = Vec2.get().setxy(0, 200);

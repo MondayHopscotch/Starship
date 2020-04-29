@@ -18,7 +18,7 @@ import objects.SwitchWall;
 import objects.Wall;
 
 class RopeBend extends FlxState {
-	var ship:FlxNapeSprite;
+	var ship:Ship;
 
 	// Units: Pixels/sec/sec
 	var gravity:Vec2 = Vec2.get().setxy(0, 200);
@@ -44,7 +44,8 @@ class RopeBend extends FlxState {
 		makeBlock(200, 220, 15, 15);
 		makeBlock(300, 300, 40, 40);
 
-		add(Cargo.create(AssetPaths.debug_square_red__png, 5, FlxG.height - 5, 10));
+		var c = Cargo.create(AssetPaths.debug_square_red__png, 5, FlxG.height - 5, 10);
+		add(c);
 	}
 
 	function makeBlock(x:Float, y:Float, width:Float, height:Float) {
