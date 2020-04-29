@@ -33,6 +33,7 @@ class RopeTestBed extends FlxState {
 		FlxNapeSpace.init();
 		FlxNapeSpace.drawDebug = true;
 		FlxNapeSpace.createWalls(0, 0, 0, 0);
+		// FlxNapeSpace.space.gravity.setxy(0, 200);
 
 		hand = new PivotJoint(FlxNapeSpace.space.world, null, Vec2.weak(), Vec2.weak());
 		hand.active = false;
@@ -46,12 +47,14 @@ class RopeTestBed extends FlxState {
 	function createTestObjs() {
 		makeBlock(300, 300, 40, 40);
 
-		cargo1 = Cargo.create(AssetPaths.debug_square_red__png, 50, 300, 20);
-		cargo2 = Cargo.create(AssetPaths.debug_square_red__png, 300, 300, 20);
+		cargo1 = Cargo.create(AssetPaths.debug_square_red__png, 50, 300, 25);
+		cargo2 = Cargo.create(AssetPaths.debug_square_red__png, 300, 300, 25);
 		add(cargo1);
 		add(cargo2);
 
-		rope = new Rope(cargo1, Vec2.get(), cargo2, Vec2.get(), Vec2.distance(cargo1.body.position, cargo2.body.position) + 1);
+		rope = new Rope();
+		rope.attach(cargo1, Vec2.get(), cargo2, Vec2.get(12.5, 12.5), Vec2.distance(cargo1.body.position, cargo2.body.position) + 1);
+		// rope.attach(cargo1, Vec2.get(), cargo2, Vec2.get(), Vec2.distance(cargo1.body.position, cargo2.body.position) + 1);
 	}
 
 	function makeBlock(x:Float, y:Float, width:Float, height:Float) {
@@ -67,6 +70,11 @@ class RopeTestBed extends FlxState {
 
 	override public function update(elapsed:Float) {
 		super.update(elapsed);
+
+		if (FlxG.mouse.justPressedRight) {
+			trace(Vec2.get(FlxG.mouse.x, FlxG.mouse.y));
+			trace(FlxNapeSpace.space.bodiesUnderPoint(Vec2.get(FlxG.mouse.x, FlxG.mouse.y), null));
+		}
 
 		if (FlxG.mouse.justPressed) {
 			mouseDown();
