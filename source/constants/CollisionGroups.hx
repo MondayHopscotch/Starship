@@ -10,6 +10,8 @@ class CollisionGroups {
 
 	public static inline var HATCHES:Int = 0x1 << 4 | CARGO;
 
+	public static inline var OTHER_SENSOR:Int = 0x1 << 32;
+
 	public static inline var TOW_COLLIDERS:Int = CARGO & HATCHES & TERRAIN;
 	public static inline var ALL:Int = ~(0);
 }

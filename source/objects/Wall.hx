@@ -42,7 +42,7 @@ class Wall extends FlxTypedGroup<FlxNapeSprite> {
 
 	var knobFlex:Float = 20;
 
-	var maxImpulseDamage:Float = 100;
+	var maxImpulseDamage:Float = 10;
 
 	public function new(x:Int) {
 		super();

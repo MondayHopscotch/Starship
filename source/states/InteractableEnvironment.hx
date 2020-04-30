@@ -45,7 +45,7 @@ class InteractableEnvironment extends BackableState {
 		var lever = new SwitchWall(200, FlxG.height, true);
 		add(lever);
 
-		add(Cargo.create(AssetPaths.debug_square_red__png, 5, FlxG.height - 5, 10));
+		add(Cargo.create(AssetPaths.debug_square_red__png, 20, FlxG.height - 5, 10));
 	}
 
 	override public function update(elapsed:Float) {

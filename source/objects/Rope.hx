@@ -83,6 +83,12 @@ class Rope {
 			return;
 		}
 
+		if (ends.body1.space == null || ends.body2.space == null) {
+			// something doesn't exist, rope is broken
+			attached = false;
+			return;
+		}
+
 		var e2eRay = Ray.fromSegment(ends.body1.getWorldPoint(ends.anchor1), ends.body2.getWorldPoint(ends.anchor2));
 		var e2eResult:RayResult = FlxNapeSpace.space.rayCast(e2eRay, false, new InteractionFilter(CollisionGroups.TERRAIN, CollisionGroups.TERRAIN, 0, 0));
 

@@ -54,6 +54,7 @@ class SwitchWall extends FlxTypedGroup<FlxNapeSprite> {
 		base.body.position.setxy(x, y);
 		base.body.shapes.at(0).sensorEnabled = true;
 		base.body.type = BodyType.KINEMATIC;
+		base.body.setShapeFilters(new InteractionFilter(CollisionGroups.OTHER_SENSOR, 0));
 		add(base);
 
 		var knobRadius = 10;
