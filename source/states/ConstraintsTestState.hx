@@ -35,7 +35,7 @@ import objects.Ship;
 // Template class is used so that this sample may
 // be as concise as possible in showing Nape features without
 // any of the boilerplate that makes up the sample interfaces.
-class ConstraintsTestState extends FlxState {
+class ConstraintsTestState extends BackableState {
 	// Cell sizes
 	static inline var cellWcnt = 3;
 	static inline var cellHcnt = 3;
@@ -53,6 +53,7 @@ class ConstraintsTestState extends FlxState {
 	var gravity:Vec2 = Vec2.get().setxy(0, 600);
 
 	override public function create() {
+		super.create();
 		CbTypes.initTypes();
 		FlxNapeSpace.init();
 		FlxNapeSpace.drawDebug = true;

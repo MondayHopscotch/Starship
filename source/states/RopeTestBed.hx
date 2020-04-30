@@ -20,7 +20,7 @@ import objects.Ship;
 import objects.SwitchWall;
 import objects.Wall;
 
-class RopeTestBed extends FlxState {
+class RopeTestBed extends BackableState {
 	var rope:Rope;
 	var cargo1:Cargo;
 	var cargo2:Cargo;
@@ -29,6 +29,7 @@ class RopeTestBed extends FlxState {
 	var bodyList:BodyList = null;
 
 	override public function create() {
+		super.create();
 		CbTypes.initTypes();
 		FlxNapeSpace.init();
 		FlxNapeSpace.drawDebug = true;
@@ -46,6 +47,7 @@ class RopeTestBed extends FlxState {
 
 	function createTestObjs() {
 		makeBlock(300, 300, 40, 40);
+		makeBlock(400, 350, 40, 40);
 
 		cargo1 = Cargo.create(AssetPaths.debug_square_red__png, 50, 300, 25);
 		cargo2 = Cargo.create(AssetPaths.debug_square_red__png, 300, 300, 25);

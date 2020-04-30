@@ -83,7 +83,7 @@ class Rope {
 			return;
 		}
 
-		var e2eRay = Ray.fromSegment(Vec2.get().set(ends.body1.position), Vec2.get().set(ends.body2.position));
+		var e2eRay = Ray.fromSegment(ends.body1.getWorldPoint(ends.anchor1), ends.body2.getWorldPoint(ends.anchor2));
 		var e2eResult:RayResult = FlxNapeSpace.space.rayCast(e2eRay, false, new InteractionFilter(CollisionGroups.TERRAIN, CollisionGroups.TERRAIN, 0, 0));
 
 		if (segments.length == 0) {
@@ -142,7 +142,7 @@ class Rope {
 		var contact:RopeContactPoint = castRope(start, end);
 		if (contact != null) {
 			// trace("-----adding new start-end segment-----");
-			// trace("--replacing: " + start.body + "->" + end.body + ")");
+			// trace("--replacing: " + start.body + "(" + start.point + ")->" + end.body + "(" + end.point + ")");
 			segments.remove(segments[0]);
 			var toEnd = RopeSegment.fromContacts(contact, end);
 			segments.unshift(toEnd);
@@ -152,8 +152,17 @@ class Rope {
 			pulley.anchor2 = contact.point;
 			pulley.jointMax = getRopeLooseLength();
 
-			// trace("new segments added: " + toStart.contact1.body + " -> " + toStart.contact2.body);
-			// trace("new segments added: " + toEnd.contact1.body + " -> " + toEnd.contact2.body);
+			// trace("new segment added: " + toStart.contact1.body + "(" + toStart.contact1.point + ") -> " + toStart.contact2.body + "("
+			// 	+ toStart.contact2.point + ")");
+			// trace("new segment added: "
+			// 	+ toEnd.contact1.body
+			// 	+ "("
+			// 	+ toEnd.contact1.point
+			// 	+ ") -> "
+			// 	+ toEnd.contact2.body
+			// 	+ "("
+			// 	+ toEnd.contact2.point
+			// 	+ ")");
 			// trace("");
 		}
 		// look for new contact points between last contact and the end of the rope
@@ -162,7 +171,7 @@ class Rope {
 		contact = castRope(end, start);
 		if (contact != null) {
 			// trace("-----adding new tail-end segment-----");
-			// trace("--replacing: " + start.body + "->" + end.body + ")");
+			// trace("--replacing: " + start.body + "(" + start.point + ")->" + end.body + "(" + end.point + ")");
 			segments.remove(segments[segments.length - 1]);
 			var toStart = RopeSegment.fromContacts(start, contact);
 			segments.push(toStart);
@@ -171,8 +180,17 @@ class Rope {
 			pulley.body3 = contact.body;
 			pulley.anchor3 = contact.point;
 			pulley.jointMax = getRopeLooseLength();
-			// trace("new segments added: " + toStart.contact1.body + " -> " + toStart.contact2.body);
-			// trace("new segments added: " + toEnd.contact1.body + " -> " + toEnd.contact2.body);
+			// trace("new segment added: " + toStart.contact1.body + "(" + toStart.contact1.point + ") -> " + toStart.contact2.body + "("
+			// 	+ toStart.contact2.point + ")");
+			// trace("new segment added: "
+			// 	+ toEnd.contact1.body
+			// 	+ "("
+			// 	+ toEnd.contact1.point
+			// 	+ ") -> "
+			// 	+ toEnd.contact2.body
+			// 	+ "("
+			// 	+ toEnd.contact2.point
+			// 	+ ")");
 			// trace("");
 		}
 
@@ -243,9 +261,13 @@ class Rope {
 		var startWorldPoint = start.body.getWorldPoint(start.point);
 		var endWorldPoint = end.body.getWorldPoint(end.point);
 
-		if (startWorldPoint.x == endWorldPoint.x && startWorldPoint.y == endWorldPoint.y) {
-			trace("samsies");
-		}
+		// if (startWorldPoint.x == endWorldPoint.x && startWorldPoint.y == endWorldPoint.y) {
+		// 	trace("samsies");
+		// 	for (s in segments) {
+		// 		// TODO: Print out what the rope looks like when we hit this condition
+		// 		trace("segment: " + s.contact1.body + "(" + s.contact1.point + ") -> " + s.contact2.body + "(" + s.contact2.point + ")");
+		// 	}
+		// }
 
 		var ray = Ray.fromSegment(startWorldPoint, endWorldPoint);
 		var results:RayResultList = FlxNapeSpace.space.rayMultiCast(ray, true, new InteractionFilter(CollisionGroups.TERRAIN, CollisionGroups.TERRAIN, 0, 0));
@@ -291,6 +313,18 @@ class Rope {
 				}
 			});
 			localPoint = closestVert.copy();
+		}
+
+		if (result.shape.body == start.body && Vec2.distance(localPoint, start.point) == 0) {
+			// colliding with the same shape, at same vertex, no new rope point
+			// trace("Collided with start point");
+			return null;
+		}
+
+		if (result.shape.body == end.body && Vec2.distance(localPoint, end.point) == 0) {
+			// colliding with the same shape, at same vertex, no new rope point
+			// trace("Collided with end point");
+			return null;
 		}
 
 		// localPoint.subeq(localPoint.copy().normalise());

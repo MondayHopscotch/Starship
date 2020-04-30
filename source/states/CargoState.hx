@@ -15,13 +15,14 @@ import nape.shape.Polygon;
 import objects.Cargo;
 import objects.Ship;
 
-class CargoState extends FlxState {
+class CargoState extends BackableState {
 	var ship:Ship;
 
 	// Units: Pixels/sec/sec
 	var gravity:Vec2 = Vec2.get().setxy(0, 200);
 
 	override public function create() {
+		super.create();
 		CbTypes.initTypes();
 		FlxNapeSpace.init();
 		FlxNapeSpace.drawDebug = true;

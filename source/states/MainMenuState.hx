@@ -15,7 +15,7 @@ class MainMenuState extends FlxState {
 
 	override public function create():Void {
 		super.create();
-		FlxG.debugger.visible = true;
+		// FlxG.debugger.visible = true;
 		bgColor = FlxColor.TRANSPARENT;
 
 		addButton(new FlxButton(0, 0, "Cargo", () -> FlxG.switchState(new CargoState())));

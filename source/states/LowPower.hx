@@ -20,13 +20,14 @@ import objects.SwitchWall;
 import objects.Towable;
 import objects.Wall;
 
-class LowPower extends FlxState {
+class LowPower extends BackableState {
 	var ship:Ship;
 
 	// Units: Pixels/sec/sec
 	var gravity:Vec2 = Vec2.get().setxy(0, 200);
 
 	override public function create() {
+		super.create();
 		CbTypes.initTypes();
 		FlxNapeSpace.init();
 		FlxNapeSpace.drawDebug = true;
