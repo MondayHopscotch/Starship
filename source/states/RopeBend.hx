@@ -1,7 +1,7 @@
 package states;
 
+import constants.CGroups;
 import constants.CbTypes;
-import constants.CollisionGroups;
 import flixel.FlxG;
 import flixel.FlxState;
 import flixel.addons.nape.FlxNapeSpace;
@@ -16,6 +16,7 @@ import objects.Cargo;
 import objects.Ship;
 import objects.SwitchWall;
 import objects.Wall;
+import physics.Creators;
 
 class RopeBend extends BackableState {
 	var ship:Ship;
@@ -38,26 +39,14 @@ class RopeBend extends BackableState {
 		ship = new Ship(300, FlxG.height - 30);
 		add(ship);
 
-		makeBlock(500, 400, 30, 200);
-		makeBlock(520, 200, 200, 30);
-		makeBlock(220, 200, 20, 20);
-		makeBlock(210, 210, 20, 20);
-		makeBlock(200, 220, 15, 15);
-		makeBlock(300, 300, 40, 40);
+		add(Creators.makeBlock(500, 400, 30, 200));
+		add(Creators.makeBlock(520, 200, 200, 30));
+		add(Creators.makeBlock(220, 200, 20, 20));
+		add(Creators.makeBlock(210, 210, 20, 20));
+		add(Creators.makeBlock(200, 220, 15, 15));
+		add(Creators.makeBlock(300, 300, 40, 40));
 
-		var c = Cargo.create(AssetPaths.debug_square_red__png, 5, FlxG.height - 5, 10);
-		add(c);
-	}
-
-	function makeBlock(x:Float, y:Float, width:Float, height:Float) {
-		var testBlock = new FlxNapeSprite();
-		testBlock.loadGraphic(AssetPaths.debug_square_blue__png);
-		testBlock.setPosition(x, y);
-		testBlock.createRectangularBody(width, height);
-		testBlock.scale.set(width / 3, height / 3);
-		testBlock.body.type = BodyType.STATIC;
-		testBlock.body.setShapeFilters(new InteractionFilter(CollisionGroups.TERRAIN));
-		add(testBlock);
+		add(Cargo.create(AssetPaths.debug_square_red__png, 5, FlxG.height - 5, 10));
 	}
 
 	override public function update(elapsed:Float) {

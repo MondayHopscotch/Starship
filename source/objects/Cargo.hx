@@ -1,8 +1,7 @@
 package objects;
 
+import constants.CGroups;
 import constants.CbTypes;
-import constants.CollisionGroups;
-import flixel.addons.nape.FlxNapeSprite;
 import flixel.system.FlxAssets.FlxGraphicAsset;
 import nape.dynamics.InteractionFilter;
 import nape.phys.Body;
@@ -22,8 +21,9 @@ class Cargo extends Towable {
 		cargoBody.mass *= 5;
 		cargoBody.userData.data = cargo;
 		cargoBody.cbTypes.add(CbTypes.CB_CARGO);
+		cargoBody.cbTypes.add(CbTypes.CB_TOWABLE);
 
-		var cargoFilter = new InteractionFilter(CollisionGroups.CARGO, ~(CollisionGroups.SHIP));
+		var cargoFilter = new InteractionFilter(CGroups.CARGO | CGroups.TOWABLE, ~(CGroups.SHIP));
 		cargoBody.setShapeFilters(cargoFilter);
 
 		cargo.addPremadeBody(cargoBody);

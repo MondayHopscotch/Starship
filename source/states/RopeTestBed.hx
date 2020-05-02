@@ -1,7 +1,7 @@
 package states;
 
+import constants.CGroups;
 import constants.CbTypes;
-import constants.CollisionGroups;
 import flixel.FlxG;
 import flixel.FlxState;
 import flixel.addons.nape.FlxNapeSpace;
@@ -19,6 +19,7 @@ import objects.Rope;
 import objects.Ship;
 import objects.SwitchWall;
 import objects.Wall;
+import physics.Creators;
 
 class RopeTestBed extends BackableState {
 	var rope:Rope;
@@ -46,8 +47,8 @@ class RopeTestBed extends BackableState {
 	}
 
 	function createTestObjs() {
-		makeBlock(300, 300, 40, 40);
-		makeBlock(400, 350, 40, 40);
+		add(Creators.makeBlock(300, 300, 40, 40));
+		add(Creators.makeBlock(400, 350, 40, 40));
 
 		cargo1 = Cargo.create(AssetPaths.debug_square_red__png, 50, 300, 25);
 		cargo2 = Cargo.create(AssetPaths.debug_square_red__png, 300, 300, 25);
@@ -57,17 +58,6 @@ class RopeTestBed extends BackableState {
 		rope = new Rope();
 		rope.attach(cargo1, Vec2.get(), cargo2, Vec2.get(12.5, 12.5), Vec2.distance(cargo1.body.position, cargo2.body.position) + 1);
 		// rope.attach(cargo1, Vec2.get(), cargo2, Vec2.get(), Vec2.distance(cargo1.body.position, cargo2.body.position) + 1);
-	}
-
-	function makeBlock(x:Float, y:Float, width:Float, height:Float) {
-		var testBlock = new FlxNapeSprite();
-		testBlock.loadGraphic(AssetPaths.debug_square_blue__png);
-		testBlock.setPosition(x, y);
-		testBlock.createRectangularBody(width, height);
-		testBlock.scale.set(width / 3, height / 3);
-		testBlock.body.type = BodyType.STATIC;
-		testBlock.body.setShapeFilters(new InteractionFilter(CollisionGroups.TERRAIN));
-		add(testBlock);
 	}
 
 	override public function update(elapsed:Float) {

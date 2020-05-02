@@ -12,12 +12,11 @@ import nape.geom.Vec2;
 import nape.phys.Body;
 import nape.phys.BodyType;
 import nape.shape.Polygon;
-import objects.Cargo;
+import objects.Bomb;
 import objects.Ship;
-import objects.SwitchWall;
-import objects.Wall;
+import physics.Creators;
 
-class InteractableEnvironment extends BackableState {
+class Bombs extends BackableState {
 	var ship:Ship;
 
 	// Units: Pixels/sec/sec
@@ -28,24 +27,22 @@ class InteractableEnvironment extends BackableState {
 		CbTypes.initTypes();
 		FlxNapeSpace.init();
 		FlxNapeSpace.drawDebug = true;
-		FlxNapeSpace.createWalls(0, 0, 0, 0);
+		var walls = FlxNapeSpace.createWalls(0, 0, 0, 0);
+		walls.cbTypes.add(CbTypes.CB_TERRAIN);
 		FlxNapeSpace.space.gravity.set(gravity);
 
 		createTestObjs();
+		for (b in Creators.createBucket(AssetPaths.debug_square_yellow__png, 50, 350, 100, 30, true)) {
+			add(b);
+		}
 	}
 
 	function createTestObjs() {
 		ship = new Ship(300, 300);
 		add(ship);
 
-		var wall = new Wall(cast(FlxG.width * 0.75, Int));
-		add(wall);
-
-		// var lever = new SwitchWall(cast(FlxG.width / 4, Int), FlxG.height);
-		var lever = new SwitchWall(200, FlxG.height, true);
-		add(lever);
-
-		add(Cargo.create(AssetPaths.debug_square_red__png, 20, FlxG.height - 5, 10));
+		var bomb = Bomb.create(50, 50, 10);
+		add(bomb);
 	}
 
 	override public function update(elapsed:Float) {

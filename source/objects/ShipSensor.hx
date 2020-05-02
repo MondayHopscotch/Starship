@@ -1,7 +1,7 @@
 package objects;
 
+import constants.CGroups;
 import constants.CbTypes;
-import constants.CollisionGroups;
 import flixel.addons.nape.FlxNapeSprite;
 import nape.dynamics.InteractionFilter;
 import nape.phys.Body;
@@ -9,7 +9,7 @@ import nape.phys.BodyType;
 import nape.phys.Material;
 import nape.shape.Circle;
 
-class ShipSensor extends FlxNapeSprite {
+class ShipSensor extends SelfAssigningFlxNapeSprite {
 	var follow:FlxNapeSprite;
 
 	public function new(radius:Float, follow:FlxNapeSprite) {
@@ -22,7 +22,7 @@ class ShipSensor extends FlxNapeSprite {
 		var weightless = new Material(0, 1, 2, 0.00000001);
 		var sensor = new Circle(radius);
 		sensor.sensorEnabled = true;
-		var filters = new InteractionFilter(CollisionGroups.SHIP_SENSOR, CollisionGroups.CARGO);
+		var filters = new InteractionFilter(CGroups.SHIP_SENSOR, CGroups.CARGO);
 		body.setShapeFilters(filters);
 		sensor.cbTypes.add(CbTypes.CB_SHIP_SENSOR_RANGE);
 		sensor.body = body;

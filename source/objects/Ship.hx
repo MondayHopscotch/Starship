@@ -1,32 +1,20 @@
 package objects;
 
+import constants.CGroups;
 import constants.CbTypes;
-import constants.CollisionGroups;
 import flixel.FlxG;
 import flixel.addons.nape.FlxNapeSpace;
-import flixel.addons.nape.FlxNapeSprite;
 import flixel.group.FlxGroup;
 import input.BasicControls;
 import nape.callbacks.CbEvent;
 import nape.callbacks.InteractionCallback;
 import nape.callbacks.InteractionListener;
 import nape.callbacks.InteractionType;
-import nape.constraint.DistanceJoint;
-import nape.constraint.PulleyJoint;
 import nape.dynamics.InteractionFilter;
 import nape.geom.Ray;
 import nape.geom.RayResult;
 import nape.geom.Vec2;
-import nape.geom.Vec2List;
-import nape.phys.Body;
-import nape.phys.BodyType;
-import nape.phys.Material;
-import nape.shape.Circle;
-import nape.shape.EdgeList;
-import nape.shape.Polygon;
 import objects.Towable;
-
-using extensions.BodyExt;
 
 class Ship extends FlxGroup {
 	static inline var MIN_TOW_DISTANCE:Float = 10;
@@ -58,9 +46,9 @@ class Ship extends FlxGroup {
 		sensor = new ShipSensor(MAX_TOW_DISTANCE, shipBody);
 		add(sensor);
 
-		FlxNapeSpace.space.listeners.add(new InteractionListener(CbEvent.BEGIN, InteractionType.SENSOR, CbTypes.CB_SHIP_SENSOR_RANGE, CbTypes.CB_CARGO,
+		FlxNapeSpace.space.listeners.add(new InteractionListener(CbEvent.BEGIN, InteractionType.SENSOR, CbTypes.CB_SHIP_SENSOR_RANGE, CbTypes.CB_TOWABLE,
 			cargoEnterRangeCallback));
-		FlxNapeSpace.space.listeners.add(new InteractionListener(CbEvent.END, InteractionType.SENSOR, CbTypes.CB_SHIP_SENSOR_RANGE, CbTypes.CB_CARGO,
+		FlxNapeSpace.space.listeners.add(new InteractionListener(CbEvent.END, InteractionType.SENSOR, CbTypes.CB_SHIP_SENSOR_RANGE, CbTypes.CB_TOWABLE,
 			cargoExitRangeCallback));
 	}
 
@@ -111,7 +99,7 @@ class Ship extends FlxGroup {
 
 	public function tetherCargo(cargo:Towable):Bool {
 		var ray = Ray.fromSegment(Vec2.get().set(shipBody.body.position), Vec2.get().set(cargo.body.position));
-		var result:RayResult = FlxNapeSpace.space.rayCast(ray, false, new InteractionFilter(CollisionGroups.ALL, CollisionGroups.ALL));
+		var result:RayResult = FlxNapeSpace.space.rayCast(ray, false, new InteractionFilter(CGroups.ALL, CGroups.ALL));
 
 		if (result == null) {
 			trace("no valid tow ray result");

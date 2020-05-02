@@ -1,7 +1,7 @@
 package states;
 
+import constants.CGroups;
 import constants.CbTypes;
-import constants.CollisionGroups;
 import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxState;

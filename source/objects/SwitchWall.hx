@@ -1,23 +1,15 @@
 package objects;
 
-import constants.CbTypes;
-import constants.CollisionGroups;
+import constants.CGroups;
 import flixel.FlxG;
 import flixel.addons.nape.FlxNapeSpace;
 import flixel.addons.nape.FlxNapeSprite;
 import flixel.group.FlxGroup;
-import flixel.math.FlxPoint;
-import flixel.math.FlxRandom;
 import nape.constraint.Constraint;
-import nape.constraint.DistanceJoint;
-import nape.constraint.LineJoint;
 import nape.constraint.PivotJoint;
-import nape.constraint.WeldJoint;
 import nape.dynamics.InteractionFilter;
 import nape.geom.Vec2;
 import nape.phys.BodyType;
-
-using extensions.FlxObjectExt;
 
 class SwitchWall extends FlxTypedGroup<FlxNapeSprite> {
 	var base:FlxNapeSprite;
@@ -54,7 +46,7 @@ class SwitchWall extends FlxTypedGroup<FlxNapeSprite> {
 		base.body.position.setxy(x, y);
 		base.body.shapes.at(0).sensorEnabled = true;
 		base.body.type = BodyType.KINEMATIC;
-		base.body.setShapeFilters(new InteractionFilter(CollisionGroups.OTHER_SENSOR, 0));
+		base.body.setShapeFilters(new InteractionFilter(CGroups.OTHER_SENSOR, 0));
 		add(base);
 
 		var knobRadius = 10;

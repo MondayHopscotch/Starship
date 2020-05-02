@@ -1,7 +1,7 @@
 package states;
 
+import constants.CGroups;
 import constants.CbTypes;
-import constants.CollisionGroups;
 import flash.text.TextField;
 import flash.text.TextFormat;
 import flash.text.TextFormatAlign;

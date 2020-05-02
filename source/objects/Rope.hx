@@ -1,6 +1,6 @@
 package objects;
 
-import constants.CollisionGroups;
+import constants.CGroups;
 import flixel.FlxG;
 import flixel.addons.nape.FlxNapeSpace;
 import flixel.addons.nape.FlxNapeSprite;
@@ -90,7 +90,7 @@ class Rope {
 		}
 
 		var e2eRay = Ray.fromSegment(ends.body1.getWorldPoint(ends.anchor1), ends.body2.getWorldPoint(ends.anchor2));
-		var e2eResult:RayResult = FlxNapeSpace.space.rayCast(e2eRay, false, new InteractionFilter(CollisionGroups.TERRAIN, CollisionGroups.TERRAIN, 0, 0));
+		var e2eResult:RayResult = FlxNapeSpace.space.rayCast(e2eRay, false, new InteractionFilter(CGroups.TERRAIN, CGroups.TERRAIN, 0, 0));
 
 		if (segments.length == 0) {
 			if (e2eResult == null) {
@@ -99,7 +99,7 @@ class Rope {
 			}
 
 			FlxG.watch.addQuick("Rope contact: ", true);
-			FlxG.log.notice("attaching pulley");
+			trace("attaching pulley");
 			pulley.active = true;
 			pulley.space = FlxNapeSpace.space;
 			pulley.body1 = ends.body1;
@@ -117,9 +117,11 @@ class Rope {
 		}
 
 		FlxG.watch.addQuick("Rope segments:", segments.length);
-		// for (s in segments) {
-		// 	trace("(" + s.contact1.body + "->" + s.contact2.body + ")");
-		// }
+		trace("segments coming into update:");
+		for (s in segments) {
+			trace("(" + s.contact1.body + "->" + s.contact2.body + ")");
+		}
+		trace("");
 		// no points of contact end to end, and only one rope touchpoint. This means we are no longer pullied
 		if (e2eResult == null && segments.length == 2) {
 			// TODO: Simplify this... please.
@@ -147,8 +149,8 @@ class Rope {
 		var end:RopeContactPoint = segments[0].contact2;
 		var contact:RopeContactPoint = castRope(start, end);
 		if (contact != null) {
-			// trace("-----adding new start-end segment-----");
-			// trace("--replacing: " + start.body + "(" + start.point + ")->" + end.body + "(" + end.point + ")");
+			trace("-----adding new start-end segment-----");
+			trace("--replacing: " + start.body + "(" + start.point + ")->" + end.body + "(" + end.point + ")");
 			segments.remove(segments[0]);
 			var toEnd = RopeSegment.fromContacts(contact, end);
 			segments.unshift(toEnd);
@@ -158,26 +160,26 @@ class Rope {
 			pulley.anchor2 = contact.point;
 			pulley.jointMax = getRopeLooseLength();
 
-			// trace("new segment added: " + toStart.contact1.body + "(" + toStart.contact1.point + ") -> " + toStart.contact2.body + "("
-			// 	+ toStart.contact2.point + ")");
-			// trace("new segment added: "
-			// 	+ toEnd.contact1.body
-			// 	+ "("
-			// 	+ toEnd.contact1.point
-			// 	+ ") -> "
-			// 	+ toEnd.contact2.body
-			// 	+ "("
-			// 	+ toEnd.contact2.point
-			// 	+ ")");
-			// trace("");
+			trace("new segment added: " + toStart.contact1.body + "(" + toStart.contact1.point + ") -> " + toStart.contact2.body + "("
+				+ toStart.contact2.point + ")");
+			trace("new segment added: "
+				+ toEnd.contact1.body
+				+ "("
+				+ toEnd.contact1.point
+				+ ") -> "
+				+ toEnd.contact2.body
+				+ "("
+				+ toEnd.contact2.point
+				+ ")");
+			trace("");
 		}
 		// look for new contact points between last contact and the end of the rope
 		start = segments[segments.length - 1].contact1;
 		end = segments[segments.length - 1].contact2;
 		contact = castRope(end, start);
 		if (contact != null) {
-			// trace("-----adding new tail-end segment-----");
-			// trace("--replacing: " + start.body + "(" + start.point + ")->" + end.body + "(" + end.point + ")");
+			trace("-----adding new tail-end segment-----");
+			trace("--replacing: " + start.body + "(" + start.point + ")->" + end.body + "(" + end.point + ")");
 			segments.remove(segments[segments.length - 1]);
 			var toStart = RopeSegment.fromContacts(start, contact);
 			segments.push(toStart);
@@ -186,18 +188,18 @@ class Rope {
 			pulley.body3 = contact.body;
 			pulley.anchor3 = contact.point;
 			pulley.jointMax = getRopeLooseLength();
-			// trace("new segment added: " + toStart.contact1.body + "(" + toStart.contact1.point + ") -> " + toStart.contact2.body + "("
-			// 	+ toStart.contact2.point + ")");
-			// trace("new segment added: "
-			// 	+ toEnd.contact1.body
-			// 	+ "("
-			// 	+ toEnd.contact1.point
-			// 	+ ") -> "
-			// 	+ toEnd.contact2.body
-			// 	+ "("
-			// 	+ toEnd.contact2.point
-			// 	+ ")");
-			// trace("");
+			trace("new segment added: " + toStart.contact1.body + "(" + toStart.contact1.point + ") -> " + toStart.contact2.body + "("
+				+ toStart.contact2.point + ")");
+			trace("new segment added: "
+				+ toEnd.contact1.body
+				+ "("
+				+ toEnd.contact1.point
+				+ ") -> "
+				+ toEnd.contact2.body
+				+ "("
+				+ toEnd.contact2.point
+				+ ")");
+			trace("");
 		}
 
 		// check for lost contact
@@ -235,7 +237,7 @@ class Rope {
 						segments.insert(i, newSegment);
 
 						pulley.jointMax = getRopeLooseLength();
-						// trace("Removing segment:" + rope.length + " (frame " + frameCount + ")");
+						// trace("Removing segment:" + segments.length + " (frame " + frameCount + ")");
 					}
 				}
 			}
@@ -267,16 +269,16 @@ class Rope {
 		var startWorldPoint = start.body.getWorldPoint(start.point);
 		var endWorldPoint = end.body.getWorldPoint(end.point);
 
-		// if (startWorldPoint.x == endWorldPoint.x && startWorldPoint.y == endWorldPoint.y) {
-		// 	trace("samsies");
-		// 	for (s in segments) {
-		// 		// TODO: Print out what the rope looks like when we hit this condition
-		// 		trace("segment: " + s.contact1.body + "(" + s.contact1.point + ") -> " + s.contact2.body + "(" + s.contact2.point + ")");
-		// 	}
-		// }
+		if (startWorldPoint.x == endWorldPoint.x && startWorldPoint.y == endWorldPoint.y) {
+			trace("samsies");
+			for (s in segments) {
+				// TODO: Print out what the rope looks like when we hit this condition
+				trace("segment: " + s.contact1.body + "(" + s.contact1.point + ") -> " + s.contact2.body + "(" + s.contact2.point + ")");
+			}
+		}
 
 		var ray = Ray.fromSegment(startWorldPoint, endWorldPoint);
-		var results:RayResultList = FlxNapeSpace.space.rayMultiCast(ray, true, new InteractionFilter(CollisionGroups.TERRAIN, CollisionGroups.TERRAIN, 0, 0));
+		var results:RayResultList = FlxNapeSpace.space.rayMultiCast(ray, true, new InteractionFilter(CGroups.TERRAIN, CGroups.TERRAIN, 0, 0));
 		if (results == null || results.length == 0) {
 			return null;
 		}

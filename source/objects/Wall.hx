@@ -1,23 +1,17 @@
 package objects;
 
-import constants.CbTypes;
-import constants.CollisionGroups;
+import constants.CGroups;
 import flixel.FlxG;
 import flixel.addons.nape.FlxNapeSpace;
 import flixel.addons.nape.FlxNapeSprite;
 import flixel.group.FlxGroup;
-import flixel.math.FlxPoint;
 import flixel.math.FlxRandom;
 import nape.constraint.Constraint;
-import nape.constraint.DistanceJoint;
 import nape.constraint.LineJoint;
 import nape.constraint.PivotJoint;
-import nape.constraint.WeldJoint;
 import nape.dynamics.InteractionFilter;
 import nape.geom.Vec2;
 import nape.phys.BodyType;
-
-using extensions.FlxObjectExt;
 
 class Wall extends FlxTypedGroup<FlxNapeSprite> {
 	var top:FlxNapeSprite;
@@ -56,7 +50,7 @@ class Wall extends FlxTypedGroup<FlxNapeSprite> {
 		top.createRectangularBody(10, segmentHeight);
 		top.scale.set(10 / 3, segmentHeight / 3);
 		top.body.type = BodyType.STATIC;
-		top.body.setShapeFilters(new InteractionFilter(CollisionGroups.TERRAIN));
+		top.body.setShapeFilters(new InteractionFilter(CGroups.TERRAIN));
 		add(top);
 
 		bottom = new FlxNapeSprite();
@@ -65,7 +59,7 @@ class Wall extends FlxTypedGroup<FlxNapeSprite> {
 		bottom.createRectangularBody(10, segmentHeight);
 		bottom.scale.set(10 / 3, segmentHeight / 3);
 		bottom.body.type = BodyType.STATIC;
-		bottom.body.setShapeFilters(new InteractionFilter(CollisionGroups.TERRAIN));
+		bottom.body.setShapeFilters(new InteractionFilter(CGroups.TERRAIN));
 		add(bottom);
 
 		var gateHeight = FlxG.height - 2 * segmentHeight;
@@ -76,7 +70,7 @@ class Wall extends FlxTypedGroup<FlxNapeSprite> {
 		topHatch.createRectangularBody(10, hatchHeight);
 		topHatch.scale.set(10 / 3, hatchHeight / 3);
 		topHatch.body.type = BodyType.DYNAMIC;
-		topHatch.body.setShapeFilters(new InteractionFilter((CollisionGroups.SHIP | CollisionGroups.CARGO), ~(CollisionGroups.TERRAIN)));
+		topHatch.body.setShapeFilters(new InteractionFilter((CGroups.SHIP | CGroups.CARGO), ~(CGroups.TERRAIN)));
 
 		bottomHatch = new FlxNapeSprite();
 		bottomHatch.loadGraphic(AssetPaths.debug_square_red__png);
@@ -84,7 +78,7 @@ class Wall extends FlxTypedGroup<FlxNapeSprite> {
 		bottomHatch.createRectangularBody(10, hatchHeight);
 		bottomHatch.scale.set(10 / 3, hatchHeight / 3);
 		bottomHatch.body.type = BodyType.DYNAMIC;
-		bottomHatch.body.setShapeFilters(new InteractionFilter((CollisionGroups.SHIP | CollisionGroups.CARGO), ~(CollisionGroups.TERRAIN)));
+		bottomHatch.body.setShapeFilters(new InteractionFilter((CGroups.SHIP | CGroups.CARGO), ~(CGroups.TERRAIN)));
 
 		var topPivot = Vec2.get(x - 5, segmentHeight);
 
