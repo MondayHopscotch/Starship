@@ -63,11 +63,6 @@ class Ship extends FlxGroup {
 			trace(FlxNapeSpace.space.bodiesUnderPoint(Vec2.get(FlxG.mouse.x, FlxG.mouse.y), null));
 		}
 
-		shipBody.body.angularVel *= .95;
-		if (Math.abs(shipBody.body.angularVel) < 0.1) {
-			shipBody.body.angularVel = 0;
-		}
-
 		if (controls.thruster.x > 0.1) {
 			// FlxG.watch.addQuick("Thruster     : ", controls.thruster.x);
 			shipBody.body.applyImpulse(Vec2.weak()
@@ -79,7 +74,13 @@ class Ship extends FlxGroup {
 
 		if (Math.abs(controls.steer.x) > 0.1) {
 			// FlxG.watch.addQuick("Steering     : ", controls.steer.x);
+			shipBody.body.angularVel *= .95;
+			// if (Math.abs(shipBody.body.angularVel) < 0.1) {
+			// 	shipBody.body.angularVel = 0;
+			// }
 			shipBody.body.angularVel = TURN_POWER * Math.pow(controls.steer.x, 3);
+		} else {
+			shipBody.body.angularVel = 0;
 		}
 
 		rope.update(elapsed);
@@ -89,11 +90,14 @@ class Ship extends FlxGroup {
 			if (rope.isAttached()) {
 				rope.detach();
 			} else {
-				validCargoTargets.sort((t1,
-						t2) -> return Math.floor(Math.abs(Vec2.distance(shipBody.body.position, t2.body.position)
-						- Vec2.distance(shipBody.body.position, t1.body.position))));
+				validCargoTargets.sort((t1, t2) -> {
+					return Math.floor(Vec2.distance(shipBody.body.position, t1.body.position) - Vec2.distance(shipBody.body.position, t2.body.position));
+				});
 				for (c in validCargoTargets) {
-					trace("grabbing at " + c + ": " + tetherCargo(c));
+					if (tetherCargo(c)) {
+						trace("grabbing at: " + c);
+						break;
+					}
 				}
 				FlxG.log.notice("no tow in range");
 			}

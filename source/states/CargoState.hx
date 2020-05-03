@@ -37,15 +37,23 @@ class CargoState extends BackableState {
 		ship = new Ship(300, 300);
 		add(ship);
 
-		add(Cargo.create(AssetPaths.debug_square_red__png, 50, FlxG.height - 50, 15));
-		add(Cargo.create(AssetPaths.debug_square_blue__png, FlxG.width - 50, FlxG.height - 50, 10));
+		var x = 50;
+		var size = 10;
+		for (i in 0...10) {
+			add(Cargo.create(AssetPaths.debug_square_red__png, x, FlxG.height - 50, size, 1));
+			x += 50;
+			size += 5;
+		}
+		// var light = Cargo.create(AssetPaths.debug_square_red__png, 50, FlxG.height - 50, 15);
+		// add(light);
+		// add(Cargo.create(AssetPaths.debug_square_blue__png, FlxG.width - 50, FlxG.height - 50, 10));
 
-		for (b in Creators.createBucket(AssetPaths.debug_square_blue__png, 50, FlxG.height - 50, 50, 50)) {
-			add(b);
-		}
-		for (b in Creators.createBucket(AssetPaths.debug_square_red__png, FlxG.width - 50, FlxG.height - 50, 50, 50)) {
-			add(b);
-		}
+		// for (b in Creators.createBucket(AssetPaths.debug_square_blue__png, 50, FlxG.height - 50, 50, 50)) {
+		// 	add(b);
+		// }
+		// for (b in Creators.createBucket(AssetPaths.debug_square_red__png, FlxG.width - 50, FlxG.height - 50, 50, 50)) {
+		// 	add(b);
+		// }
 	}
 
 	override public function update(elapsed:Float) {

@@ -11,6 +11,8 @@ import nape.dynamics.InteractionFilter;
 class Towable extends SelfAssigningFlxNapeSprite {
 	public var activeJoint:DistanceJoint;
 
+	public var towMassScale:Float = 1;
+
 	public function new() {
 		super();
 	}
@@ -24,11 +26,13 @@ class Towable extends SelfAssigningFlxNapeSprite {
 	}
 
 	public function inTow(joint:DistanceJoint) {
+		body.gravMassScale = towMassScale;
 		FlxG.log.notice("Now towing: " + joint.body2);
 		activeJoint = joint;
 	}
 
 	public function outOfTow() {
+		body.gravMassScale = 1;
 		FlxG.log.notice("Dropping tow");
 		activeJoint = null;
 	}
