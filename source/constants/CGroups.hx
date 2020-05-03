@@ -13,9 +13,9 @@ class CGroups {
 
 	public static inline var BOMBS:Int = 0x1 << 5;
 
-	public static inline var TOWABLE:Int = 0x1 << 31;
+	public static inline var TOWABLE:Int = 0x1 << 30;
 
-	public static inline var OTHER_SENSOR:Int = 0x1 << 32;
+	public static inline var OTHER_SENSOR:Int = 0x1 << 31;
 
 	public static inline var TOW_COLLIDERS:Int = CARGO & HATCHES & TERRAIN;
 	public static inline var ALL:Int = ~(0);

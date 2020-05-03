@@ -31,19 +31,22 @@ class Ship extends FlxGroup {
 	var TURN_POWER:Float = 4;
 
 	var rope:Rope;
+	var maxLength:Float;
 
 	var shipBody:ShipBody;
 	var sensor:ShipSensor;
 
-	public function new(x:Int, y:Int) {
+	public function new(x:Int, y:Int, towLength:Float = MAX_TOW_DISTANCE) {
 		super();
+
+		maxLength = towLength;
 
 		controls = new BasicControls();
 		rope = new Rope();
 
 		shipBody = new ShipBody(x, y);
 		add(shipBody);
-		sensor = new ShipSensor(MAX_TOW_DISTANCE, shipBody);
+		sensor = new ShipSensor(maxLength, shipBody);
 		add(sensor);
 
 		FlxNapeSpace.space.listeners.add(new InteractionListener(CbEvent.BEGIN, InteractionType.SENSOR, CbTypes.CB_SHIP_SENSOR_RANGE, CbTypes.CB_TOWABLE,
@@ -109,7 +112,7 @@ class Ship extends FlxGroup {
 			return false;
 		} else {
 			rope.attach(shipBody, Vec2.get(), cargo, ray.at(result.distance).sub(Vec2.weak().set(cargo.body.position)).rotate(-cargo.body.rotation),
-				MAX_TOW_DISTANCE);
+				maxLength);
 			return true;
 		}
 	}

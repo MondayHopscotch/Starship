@@ -26,7 +26,7 @@ class Bomb extends Towable {
 		bombBody.isBullet = true;
 		// bombBody.shapes.add(new Polygon(Polygon.regular(size / 2, size / 2, 10)));
 		bombBody.shapes.add(new Circle(radius));
-		bombBody.mass *= 5;
+		// bombBody.mass *= 5;
 		bombBody.userData.data = bomb;
 		bombBody.cbTypes.add(CbTypes.CB_BOMB);
 		bombBody.cbTypes.add(CbTypes.CB_TOWABLE);
@@ -51,8 +51,13 @@ class Bomb extends Towable {
 			trace("SAFE");
 		} else {
 			trace("BOOM");
-			activeJoint.active = false;
+			if (activeJoint != null) {
+				activeJoint.active = false;
+			}
 			kill();
+			if (Std.is(clbk.int2.userData.data, DestructibleWall)) {
+				clbk.int2.userData.data.kill();
+			}
 		}
 	}
 }

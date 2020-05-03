@@ -9,6 +9,7 @@ class CbTypes {
 	public static var CB_SHIP_SENSOR_RANGE:CbType;
 	public static var CB_TERRAIN:CbType;
 	public static var CB_TOWABLE:CbType;
+	public static var CB_DESTRUCTIBLE:CbType;
 
 	public static function initTypes() {
 		CB_BOMB = new CbType();
@@ -21,5 +22,7 @@ class CbTypes {
 		trace("CB_TERRAIN is " + CB_TERRAIN);
 		CB_TOWABLE = new CbType();
 		trace("CB_TOWABLE is " + CB_TOWABLE);
+		CB_DESTRUCTIBLE = new CbType();
+		trace("CB_DESTRUCTIBLE is " + CB_DESTRUCTIBLE);
 	}
 }

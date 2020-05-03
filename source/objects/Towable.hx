@@ -20,7 +20,6 @@ class Towable extends SelfAssigningFlxNapeSprite {
 		body.setShapeFilters(new InteractionFilter(CGroups.CARGO, ~(CGroups.SHIP | CGroups.TERRAIN)));
 		body.cbTypes.add(CbTypes.CB_CARGO);
 		body.allowRotation = false;
-		// body.userData.data = this;
 		body.space = FlxNapeSpace.space;
 	}
 

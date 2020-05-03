@@ -44,7 +44,7 @@ class Wall extends FlxTypedGroup<FlxNapeSprite> {
 		joints = new Array<Constraint>();
 
 		var segmentHeight = FlxG.height / 2 - 50;
-		top = new FlxNapeSprite();
+		top = new SelfAssigningFlxNapeSprite();
 		top.loadGraphic(AssetPaths.debug_square_blue__png);
 		top.setPosition(x, segmentHeight / 2);
 		top.createRectangularBody(10, segmentHeight);
@@ -53,7 +53,7 @@ class Wall extends FlxTypedGroup<FlxNapeSprite> {
 		top.body.setShapeFilters(new InteractionFilter(CGroups.TERRAIN));
 		add(top);
 
-		bottom = new FlxNapeSprite();
+		bottom = new SelfAssigningFlxNapeSprite();
 		bottom.loadGraphic(AssetPaths.debug_square_blue__png);
 		bottom.setPosition(x, FlxG.height - segmentHeight / 2);
 		bottom.createRectangularBody(10, segmentHeight);
@@ -64,7 +64,7 @@ class Wall extends FlxTypedGroup<FlxNapeSprite> {
 
 		var gateHeight = FlxG.height - 2 * segmentHeight;
 		var hatchHeight = gateHeight / 2;
-		topHatch = new FlxNapeSprite();
+		topHatch = new SelfAssigningFlxNapeSprite();
 		topHatch.loadGraphic(AssetPaths.debug_square_red__png);
 		topHatch.setPosition(x, segmentHeight + hatchHeight / 2);
 		topHatch.createRectangularBody(10, hatchHeight);
@@ -72,7 +72,7 @@ class Wall extends FlxTypedGroup<FlxNapeSprite> {
 		topHatch.body.type = BodyType.DYNAMIC;
 		topHatch.body.setShapeFilters(new InteractionFilter((CGroups.SHIP | CGroups.CARGO), ~(CGroups.TERRAIN)));
 
-		bottomHatch = new FlxNapeSprite();
+		bottomHatch = new SelfAssigningFlxNapeSprite();
 		bottomHatch.loadGraphic(AssetPaths.debug_square_red__png);
 		bottomHatch.setPosition(x, segmentHeight + hatchHeight + hatchHeight / 2);
 		bottomHatch.createRectangularBody(10, hatchHeight);
@@ -102,7 +102,6 @@ class Wall extends FlxTypedGroup<FlxNapeSprite> {
 		knob.loadGraphic(AssetPaths.shot__png);
 		knob.scale.set(knobRadius * 2 / 32, knobRadius * 2 / 32);
 		knob.createCircularBody(knobRadius);
-		knob.body.userData.data = knob;
 		knob.body.position.set(knobPosition);
 		knob.body.type = BodyType.DYNAMIC;
 		knob.body.shapes.at(0).sensorEnabled = true;

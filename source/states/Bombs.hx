@@ -13,6 +13,8 @@ import nape.phys.Body;
 import nape.phys.BodyType;
 import nape.shape.Polygon;
 import objects.Bomb;
+import objects.Cargo;
+import objects.DestructibleWall;
 import objects.Ship;
 import physics.Creators;
 
@@ -32,17 +34,24 @@ class Bombs extends BackableState {
 		FlxNapeSpace.space.gravity.set(gravity);
 
 		createTestObjs();
-		for (b in Creators.createBucket(AssetPaths.debug_square_yellow__png, 50, 350, 100, 30, true)) {
-			add(b);
-		}
 	}
 
 	function createTestObjs() {
-		ship = new Ship(300, 300);
+		ship = new Ship(200, 300, 100);
 		add(ship);
 
-		var bomb = Bomb.create(50, 50, 10);
+		var bomb = Bomb.create(50, 50, 8);
 		add(bomb);
+
+		for (b in Creators.createBucket(AssetPaths.debug_square_yellow__png, 50, 350, 100, 30, true)) {
+			add(b);
+		}
+
+		add(DestructibleWall.create(AssetPaths.debug_square_red__png, 550, 400, 300, 10));
+		add(Creators.makeBlock(250, 75, 10, 400));
+		add(Creators.makeBlock(400, 400, 10, 400));
+
+		add(Cargo.create(AssetPaths.debug_square_blue__png, 550, 450, 10));
 	}
 
 	override public function update(elapsed:Float) {

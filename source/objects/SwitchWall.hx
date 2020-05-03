@@ -41,7 +41,7 @@ class SwitchWall extends FlxTypedGroup<FlxNapeSprite> {
 
 		var baseRadius:Float = 40;
 
-		base = new FlxNapeSprite();
+		base = new SelfAssigningFlxNapeSprite();
 		base.createCircularBody(baseRadius);
 		base.body.position.setxy(x, y);
 		base.body.shapes.at(0).sensorEnabled = true;
@@ -55,7 +55,6 @@ class SwitchWall extends FlxTypedGroup<FlxNapeSprite> {
 		knob.loadGraphic(AssetPaths.shot__png);
 		knob.scale.set(knobRadius * 2 / 32, knobRadius * 2 / 32);
 		knob.createCircularBody(knobRadius);
-		knob.body.userData.data = knob;
 		knob.body.position.set(Vec2.weak().set(base.body.position).add(Vec2.weak(baseRadius, 0)));
 		knob.body.type = BodyType.DYNAMIC;
 		knob.body.shapes.at(0).sensorEnabled = true;

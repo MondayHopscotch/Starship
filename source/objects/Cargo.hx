@@ -19,7 +19,6 @@ class Cargo extends Towable {
 		cargoBody.isBullet = true;
 		cargoBody.shapes.add(new Polygon(Polygon.rect(-size / 2, -size / 2, size, size)));
 		cargoBody.mass *= 5;
-		cargoBody.userData.data = cargo;
 		cargoBody.cbTypes.add(CbTypes.CB_CARGO);
 		cargoBody.cbTypes.add(CbTypes.CB_TOWABLE);
 

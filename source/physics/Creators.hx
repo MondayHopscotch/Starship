@@ -7,11 +7,12 @@ import flixel.system.FlxAssets.FlxGraphicAsset;
 import nape.dynamics.InteractionFilter;
 import nape.phys.BodyType;
 import nape.phys.Material;
+import objects.SelfAssigningFlxNapeSprite;
 
 class Creators {
 	public static function createBucket(spriteGfx:FlxGraphicAsset, x:Int, y:Int, width:Int, height:Int, bombProof:Bool = false):Array<FlxNapeSprite> {
 		var wallThickness = 10;
-		var left = new FlxNapeSprite();
+		var left = new SelfAssigningFlxNapeSprite();
 		left.loadGraphic(spriteGfx);
 		left.setPosition(x - width / 2 - wallThickness, y + height / 2);
 		left.createRectangularBody(wallThickness, height);
@@ -19,7 +20,7 @@ class Creators {
 		left.body.type = BodyType.STATIC;
 		left.body.cbTypes.add(CbTypes.CB_TERRAIN);
 
-		var right = new FlxNapeSprite();
+		var right = new SelfAssigningFlxNapeSprite();
 		right.loadGraphic(spriteGfx);
 		right.setPosition(x + width / 2, y + height / 2);
 		right.createRectangularBody(wallThickness, height);
@@ -27,7 +28,7 @@ class Creators {
 		right.body.type = BodyType.STATIC;
 		right.body.cbTypes.add(CbTypes.CB_TERRAIN);
 
-		var bottom = new FlxNapeSprite();
+		var bottom = new SelfAssigningFlxNapeSprite();
 		bottom.loadGraphic(spriteGfx);
 		bottom.setPosition(x, y + height);
 		bottom.createRectangularBody(width, wallThickness);
@@ -41,7 +42,7 @@ class Creators {
 			bottom.body.cbTypes.add(CbTypes.CB_BOMB);
 		}
 
-		var pieces = [left, bottom, right];
+		var pieces:Array<FlxNapeSprite> = [left, bottom, right];
 
 		for (p in pieces) {
 			for (s in p.body.shapes) {
@@ -53,13 +54,15 @@ class Creators {
 	}
 
 	public static function makeBlock(x:Float, y:Float, width:Float, height:Float) {
-		var testBlock = new FlxNapeSprite();
+		var testBlock = new SelfAssigningFlxNapeSprite();
 		testBlock.loadGraphic(AssetPaths.debug_square_blue__png);
 		testBlock.setPosition(x, y);
 		testBlock.createRectangularBody(width, height);
 		testBlock.scale.set(width / 3, height / 3);
 		testBlock.body.type = BodyType.STATIC;
 		testBlock.body.setShapeFilters(new InteractionFilter(CGroups.TERRAIN));
+		testBlock.body.cbTypes.add(CbTypes.CB_TERRAIN);
+
 		return testBlock;
 	}
 }
