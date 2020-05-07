@@ -28,6 +28,8 @@ class Rope {
 
 	var attached:Bool;
 
+	var tangentDrag:Float = 0.01;
+
 	public function new() {
 		segments = [];
 		attached = false;
@@ -94,12 +96,25 @@ class Rope {
 
 		if (segments.length == 0) {
 			if (e2eResult == null) {
-				// nothing to do
+				if (!ends.isSlack()) {
+					// attempt to slow swing
+					FlxG.watch.addQuick("body velocity:", ends.body2.velocity.length);
+					FlxG.watch.addQuick("body mass:", ends.body2.mass);
+					var gravDot = ends.body2.velocity.copy(true).normalise().dot(Vec2.get(0, 1));
+					// Always make sure we are against the velocity
+					gravDot = Math.abs(gravDot) * -1;
+					// trace("grave component: " + gravDot);
+
+					var impulse = ends.body2.velocity.mul(gravDot);
+					impulse.muleq(tangentDrag * ends.body2.mass);
+					// trace("total impulse: " + impulse);
+					ends.body2.applyImpulse(impulse);
+				}
 				return;
 			}
 
 			FlxG.watch.addQuick("Rope contact: ", true);
-			trace("attaching pulley");
+			// trace("attaching pulley");
 			pulley.active = true;
 			pulley.space = FlxNapeSpace.space;
 			pulley.body1 = ends.body1;
@@ -117,11 +132,11 @@ class Rope {
 		}
 
 		FlxG.watch.addQuick("Rope segments:", segments.length);
-		trace("segments coming into update:");
-		for (s in segments) {
-			trace("(" + s.contact1.body + "->" + s.contact2.body + ")");
-		}
-		trace("");
+		// trace("segments coming into update:");
+		// for (s in segments) {
+		// 	trace("(" + s.contact1.body + "->" + s.contact2.body + ")");
+		// }
+		// trace("");
 		// no points of contact end to end, and only one rope touchpoint. This means we are no longer pullied
 		if (e2eResult == null && segments.length == 2) {
 			// TODO: Simplify this... please.
@@ -149,8 +164,8 @@ class Rope {
 		var end:RopeContactPoint = segments[0].contact2;
 		var contact:RopeContactPoint = castRope(start, end);
 		if (contact != null) {
-			trace("-----adding new start-end segment-----");
-			trace("--replacing: " + start.body + "(" + start.point + ")->" + end.body + "(" + end.point + ")");
+			// trace("-----adding new start-end segment-----");
+			// trace("--replacing: " + start.body + "(" + start.point + ")->" + end.body + "(" + end.point + ")");
 			segments.remove(segments[0]);
 			var toEnd = RopeSegment.fromContacts(contact, end);
 			segments.unshift(toEnd);
@@ -160,26 +175,26 @@ class Rope {
 			pulley.anchor2 = contact.point;
 			pulley.jointMax = getRopeLooseLength();
 
-			trace("new segment added: " + toStart.contact1.body + "(" + toStart.contact1.point + ") -> " + toStart.contact2.body + "("
-				+ toStart.contact2.point + ")");
-			trace("new segment added: "
-				+ toEnd.contact1.body
-				+ "("
-				+ toEnd.contact1.point
-				+ ") -> "
-				+ toEnd.contact2.body
-				+ "("
-				+ toEnd.contact2.point
-				+ ")");
-			trace("");
+			// trace("new segment added: " + toStart.contact1.body + "(" + toStart.contact1.point + ") -> " + toStart.contact2.body + "("
+			// 	+ toStart.contact2.point + ")");
+			// trace("new segment added: "
+			// 	+ toEnd.contact1.body
+			// 	+ "("
+			// 	+ toEnd.contact1.point
+			// 	+ ") -> "
+			// 	+ toEnd.contact2.body
+			// 	+ "("
+			// 	+ toEnd.contact2.point
+			// 	+ ")");
+			// trace("");
 		}
 		// look for new contact points between last contact and the end of the rope
 		start = segments[segments.length - 1].contact1;
 		end = segments[segments.length - 1].contact2;
 		contact = castRope(end, start);
 		if (contact != null) {
-			trace("-----adding new tail-end segment-----");
-			trace("--replacing: " + start.body + "(" + start.point + ")->" + end.body + "(" + end.point + ")");
+			// trace("-----adding new tail-end segment-----");
+			// trace("--replacing: " + start.body + "(" + start.point + ")->" + end.body + "(" + end.point + ")");
 			segments.remove(segments[segments.length - 1]);
 			var toStart = RopeSegment.fromContacts(start, contact);
 			segments.push(toStart);
@@ -188,18 +203,18 @@ class Rope {
 			pulley.body3 = contact.body;
 			pulley.anchor3 = contact.point;
 			pulley.jointMax = getRopeLooseLength();
-			trace("new segment added: " + toStart.contact1.body + "(" + toStart.contact1.point + ") -> " + toStart.contact2.body + "("
-				+ toStart.contact2.point + ")");
-			trace("new segment added: "
-				+ toEnd.contact1.body
-				+ "("
-				+ toEnd.contact1.point
-				+ ") -> "
-				+ toEnd.contact2.body
-				+ "("
-				+ toEnd.contact2.point
-				+ ")");
-			trace("");
+			// trace("new segment added: " + toStart.contact1.body + "(" + toStart.contact1.point + ") -> " + toStart.contact2.body + "("
+			// 	+ toStart.contact2.point + ")");
+			// trace("new segment added: "
+			// 	+ toEnd.contact1.body
+			// 	+ "("
+			// 	+ toEnd.contact1.point
+			// 	+ ") -> "
+			// 	+ toEnd.contact2.body
+			// 	+ "("
+			// 	+ toEnd.contact2.point
+			// 	+ ")");
+			// trace("");
 		}
 
 		// check for lost contact
@@ -242,6 +257,11 @@ class Rope {
 				}
 			}
 		}
+
+		// if (!pulley.isSlack()) {
+		// 	// attempt to slow swing
+		// 	pulley.body4.applyImpulse(pulley.body4.velocity.mul(-0.01));
+		// }
 	}
 
 	function castRopeSameBody(start:RopeContactPoint, end:RopeContactPoint):RopeContactPoint {
@@ -270,11 +290,11 @@ class Rope {
 		var endWorldPoint = end.body.getWorldPoint(end.point);
 
 		if (startWorldPoint.x == endWorldPoint.x && startWorldPoint.y == endWorldPoint.y) {
-			trace("samsies");
-			for (s in segments) {
-				// TODO: Print out what the rope looks like when we hit this condition
-				trace("segment: " + s.contact1.body + "(" + s.contact1.point + ") -> " + s.contact2.body + "(" + s.contact2.point + ")");
-			}
+			// trace("samsies");
+			// for (s in segments) {
+			// 	// TODO: Print out what the rope looks like when we hit this condition
+			// 	trace("segment: " + s.contact1.body + "(" + s.contact1.point + ") -> " + s.contact2.body + "(" + s.contact2.point + ")");
+			// }
 		}
 
 		var ray = Ray.fromSegment(startWorldPoint, endWorldPoint);

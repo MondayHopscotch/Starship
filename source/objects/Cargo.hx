@@ -2,6 +2,7 @@ package objects;
 
 import constants.CGroups;
 import constants.CbTypes;
+import flixel.FlxG;
 import flixel.system.FlxAssets.FlxGraphicAsset;
 import nape.dynamics.InteractionFilter;
 import nape.phys.Body;
@@ -41,5 +42,19 @@ class Cargo extends Towable {
 		if (Math.abs(body.angularVel) > 0.01) {
 			body.angularVel *= .95;
 		}
+
+		// if (activeJoint != null) {
+		// 	FlxG.watch.addQuick("Speed: ", Math.abs(body.velocity.length));
+		// }
+		// if (Math.abs(body.velocity.length) > 200) {
+		// 	if (activeJoint != null) {
+		// 		FlxG.watch.addQuick("Dragging: ", true);
+		// 	}
+		// 	body.velocity.muleq(0.99);
+		// } else {
+		// 	if (activeJoint != null) {
+		// 		FlxG.watch.addQuick("Dragging: ", false);
+		// 	}
+		// }
 	}
 }

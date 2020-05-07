@@ -28,7 +28,7 @@ class Ship extends FlxGroup {
 	var validCargoTargets:Array<Towable> = [];
 
 	// Units: Rads/sec
-	var TURN_POWER:Float = 4;
+	public var TURN_POWER:Float = 4;
 
 	var rope:Rope;
 	var maxLength:Float;

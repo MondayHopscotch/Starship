@@ -1,0 +1,6 @@
+Gravity: 100
+Weight : 1
+Thrust : 200
+Turning: 2.5
+	Weight: 1 -> Barely lift 5th block
+	Weight: 0.5 -> Can pick up first 7, barely can't lift 8th
