@@ -20,16 +20,9 @@ import objects.Wall;
 class InteractableEnvironment extends BackableState {
 	var ship:Ship;
 
-	// Units: Pixels/sec/sec
-	var gravity:Vec2 = Vec2.get().setxy(0, 200);
-
 	override public function create() {
 		super.create();
-		CbTypes.initTypes();
-		FlxNapeSpace.init();
-		FlxNapeSpace.drawDebug = true;
 		FlxNapeSpace.createWalls(0, 0, 0, 0);
-		FlxNapeSpace.space.gravity.set(gravity);
 
 		createTestObjs();
 	}

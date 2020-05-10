@@ -23,17 +23,10 @@ import objects.Wall;
 class LowPower extends BackableState {
 	var ship:Ship;
 
-	// Units: Pixels/sec/sec
-	var gravity:Vec2 = Vec2.get().setxy(0, 200);
-
 	override public function create() {
 		super.create();
-		CbTypes.initTypes();
-		FlxNapeSpace.init();
-		FlxNapeSpace.drawDebug = true;
 		camera.zoom = 0.5;
 		createWallsForCam(camera);
-		FlxNapeSpace.space.gravity.set(gravity);
 
 		createTestObjs();
 	}

@@ -21,9 +21,6 @@ import test.UpdaterTest;
 class CargoState extends BackableState {
 	var ship:Ship;
 
-	// Units: Pixels/sec/sec
-	var gravity:Vec2 = Vec2.get().setxy(0, 200);
-
 	var weights:Vec2 = Vec2.get().setxy(0, 1);
 
 	var cargos:Array<Cargo>;
@@ -35,11 +32,7 @@ class CargoState extends BackableState {
 
 	override public function create() {
 		super.create();
-		CbTypes.initTypes();
-		FlxNapeSpace.init();
-		FlxNapeSpace.drawDebug = true;
 		FlxNapeSpace.createWalls(0, 0, 0, 0);
-		FlxNapeSpace.space.gravity.set(gravity);
 
 		UpdaterTest.init();
 		createTestObjs();

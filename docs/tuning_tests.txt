@@ -1,3 +1,8 @@
+Goals:
+- Flight should be fun
+- Flight should be expressive
+- Flight should be controllable for new players
+
 Gravity: 100
 Weight : 1
 Thrust : 200

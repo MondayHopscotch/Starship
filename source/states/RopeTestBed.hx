@@ -31,11 +31,7 @@ class RopeTestBed extends BackableState {
 
 	override public function create() {
 		super.create();
-		CbTypes.initTypes();
-		FlxNapeSpace.init();
-		FlxNapeSpace.drawDebug = true;
 		FlxNapeSpace.createWalls(0, 0, 0, 0);
-		// FlxNapeSpace.space.gravity.setxy(0, 200);
 
 		hand = new PivotJoint(FlxNapeSpace.space.world, null, Vec2.weak(), Vec2.weak());
 		hand.active = false;

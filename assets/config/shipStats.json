@@ -1,0 +1,6 @@
+{
+  "thrust": 200,
+  "turning": 2.5,
+  "minTowDistance": 10,
+  "maxTowDistance": 200
+}

@@ -17,18 +17,17 @@ import nape.geom.Vec2;
 import objects.Towable;
 
 class Ship extends FlxGroup {
-	static inline var MIN_TOW_DISTANCE:Float = 10;
-	static inline var MAX_TOW_DISTANCE:Float = 200;
-	static inline var RADIANS_PER_DEGREE:Float = 0.0174533;
+	var stats:ShipStats = CompileTime.parseJsonFile("assets/config/shipStats.json");
+
+	public var enginePower:Vec2;
+	// Units: Rads/sec
+	public var TURN_POWER:Float;
+
+	public var MIN_TOW_DISTANCE:Float = 10;
+	public var MAX_TOW_DISTANCE:Float = 200;
 
 	var controls:BasicControls;
-
-	public var enginePower:Vec2 = Vec2.get().setxy(500, 0);
-
 	var validCargoTargets:Array<Towable> = [];
-
-	// Units: Rads/sec
-	public var TURN_POWER:Float = 4;
 
 	var rope:Rope;
 	var maxLength:Float;
@@ -36,10 +35,15 @@ class Ship extends FlxGroup {
 	var shipBody:ShipBody;
 	var sensor:ShipSensor;
 
-	public function new(x:Int, y:Int, towLength:Float = MAX_TOW_DISTANCE) {
+	public function new(x:Int, y:Int) {
 		super();
 
-		maxLength = towLength;
+		enginePower = Vec2.get().setxy(stats.thrust, 0);
+		TURN_POWER = stats.turning;
+		MIN_TOW_DISTANCE = stats.minTowDistance;
+		MAX_TOW_DISTANCE = stats.maxTowDistance;
+
+		maxLength = MAX_TOW_DISTANCE;
 
 		controls = new BasicControls();
 		rope = new Rope();

@@ -49,16 +49,9 @@ class ConstraintsTestState extends BackableState {
 
 	var hand:PivotJoint;
 
-	// Units: Pixels/sec/sec
-	var gravity:Vec2 = Vec2.get().setxy(0, 600);
-
 	override public function create() {
 		super.create();
-		CbTypes.initTypes();
-		FlxNapeSpace.init();
-		FlxNapeSpace.drawDebug = true;
 		FlxNapeSpace.createWalls(0, 0, 0, 0);
-		FlxNapeSpace.space.gravity.set(gravity);
 
 		var w = FlxG.width;
 		var h = FlxG.height;

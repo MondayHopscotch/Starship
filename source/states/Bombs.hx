@@ -21,23 +21,16 @@ import physics.Creators;
 class Bombs extends BackableState {
 	var ship:Ship;
 
-	// Units: Pixels/sec/sec
-	var gravity:Vec2 = Vec2.get().setxy(0, 200);
-
 	override public function create() {
 		super.create();
-		CbTypes.initTypes();
-		FlxNapeSpace.init();
-		FlxNapeSpace.drawDebug = true;
 		var walls = FlxNapeSpace.createWalls(0, 0, 0, 0);
 		walls.cbTypes.add(CbTypes.CB_TERRAIN);
-		FlxNapeSpace.space.gravity.set(gravity);
 
 		createTestObjs();
 	}
 
 	function createTestObjs() {
-		ship = new Ship(200, 300, 100);
+		ship = new Ship(200, 300);
 		add(ship);
 
 		var bomb = Bomb.create(50, 50, 8);

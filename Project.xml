@@ -43,6 +43,7 @@
 
 	<!--In case you want to use nape with flixel-->
 	<haxelib name="nape-haxe4" />
+	<haxelib name="compiletime" />
 
 	<!-- ______________________________ Haxedefines _____________________________ -->
 

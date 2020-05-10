@@ -1,0 +1,7 @@
+{
+	"gravity": {
+		"x": 0,
+		"y": 100
+	},
+	"cargoWeightScalar": 0.5
+}
