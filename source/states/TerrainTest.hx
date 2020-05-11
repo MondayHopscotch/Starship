@@ -2,9 +2,11 @@ package states;
 
 import constants.CGroups;
 import constants.CbTypes;
+import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxState;
+import flixel.addons.display.FlxZoomCamera;
 import flixel.addons.nape.FlxNapeSpace;
 import flixel.addons.nape.FlxNapeSprite;
 import flixel.system.FlxAssets.FlxGraphicAsset;
@@ -23,18 +25,26 @@ import physics.Terrain;
 
 class TerrainTest extends BackableState {
 	var ship:Ship;
+	var cam:FlxCamera;
+	var bg:FlxSprite;
 
 	override public function create() {
 		super.create();
 		createTestObjs();
+
+		cam = new FlxCamera(0, 0, FlxG.width, FlxG.height);
+		cam.setScrollBoundsRect(0, 0, bg.width, bg.height);
+
+		FlxG.cameras.reset(cam);
+		cam.target = ship.shipBody;
 	}
 
 	function createTestObjs() {
 		ship = new Ship(200, 300);
 		add(ship);
 
-		var spr = new FlxSprite(0, 0, AssetPaths.testLevel__png);
-		add(spr);
+		bg = new FlxSprite(0, 0, AssetPaths.testLevel__png);
+		add(bg);
 		FlxG.bitmap.add(AssetPaths.testLevel__png, true, "terrainTest");
 		var gfx = FlxG.bitmap.get("terrainTest");
 

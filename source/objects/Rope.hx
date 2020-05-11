@@ -81,6 +81,7 @@ class Rope {
 	}
 
 	public function update(delta:Float) {
+		FlxG.watch.addQuick("Segments:", segments.length);
 		if (!attached) {
 			return;
 		}

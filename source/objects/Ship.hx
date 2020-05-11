@@ -32,13 +32,14 @@ class Ship extends FlxGroup {
 	var rope:Rope;
 	var maxLength:Float;
 
-	var shipBody:ShipBody;
+	public var shipBody:ShipBody;
+
 	var sensor:ShipSensor;
 
 	public function new(x:Int, y:Int) {
 		super();
 
-		enginePower = Vec2.get().setxy(stats.thrust, 0);
+		enginePower = Vec2.get().setxy(0, -stats.thrust);
 		TURN_POWER = stats.turning;
 		MIN_TOW_DISTANCE = stats.minTowDistance;
 		MAX_TOW_DISTANCE = stats.maxTowDistance;
