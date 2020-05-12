@@ -120,8 +120,7 @@ class Ship extends FlxGroup {
 			trace("nearest target is type: " + Type.typeof(result.shape.body.userData.data));
 			return false;
 		} else {
-			rope.attach(shipBody, Vec2.get(), cargo, ray.at(result.distance).sub(Vec2.weak().set(cargo.body.position)).rotate(-cargo.body.rotation),
-				maxLength);
+			rope.attach(shipBody, Vec2.get(), cargo, ray.at(result.distance).sub(cargo.body.position).rotate(-cargo.body.rotation), maxLength);
 			return true;
 		}
 	}

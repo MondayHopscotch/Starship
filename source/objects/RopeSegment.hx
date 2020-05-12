@@ -10,12 +10,12 @@ class RopeSegment {
 	public var contact2:RopeContactPoint;
 
 	public static function fromContacts(s:RopeContactPoint, e:RopeContactPoint):RopeSegment {
-		return new RopeSegment(s.body, s.point.copy(), e.body, e.point.copy());
+		return new RopeSegment(s.body, s.point.copy(), s.normal.copy(), e.body, e.point.copy(), e.normal.copy());
 	}
 
-	public function new(b1:Body, a1:Vec2, b2:Body, a2:Vec2) {
-		contact1 = new RopeContactPoint(b1, a1);
-		contact2 = new RopeContactPoint(b2, a2);
+	public function new(b1:Body, a1:Vec2, n1:Vec2, b2:Body, a2:Vec2, n2:Vec2) {
+		contact1 = new RopeContactPoint(b1, a1, n1);
+		contact2 = new RopeContactPoint(b2, a2, n2);
 	}
 
 	public function length():Float {

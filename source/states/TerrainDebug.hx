@@ -9,32 +9,25 @@ import objects.Cargo;
 import objects.Ship;
 import physics.Terrain;
 
-class TerrainTest extends BackableState {
+class TerrainDebug extends BackableState {
 	var ship:Ship;
-	var cam:FlxCamera;
 	var bg:FlxSprite;
 
 	override public function create() {
 		super.create();
 		createTestObjs();
-
-		cam = new FlxCamera(0, 0, FlxG.width, FlxG.height);
-		cam.setScrollBoundsRect(0, 0, bg.width, bg.height);
-
-		FlxG.cameras.reset(cam);
-		cam.target = ship.shipBody;
 	}
 
 	function createTestObjs() {
 		ship = new Ship(200, 300);
 		add(ship);
 
-		bg = new FlxSprite(0, 0, AssetPaths.testLevel__png);
+		bg = new FlxSprite(0, 0, AssetPaths.terrainDebug__png);
 		add(bg);
-		FlxG.bitmap.add(AssetPaths.testLevel__png, true, "terrainTest");
+		FlxG.bitmap.add(AssetPaths.terrainDebug__png, true, "terrainTest");
 		var gfx = FlxG.bitmap.get("terrainTest");
 
-		var terrain = new Terrain(gfx.bitmap, 60, 30);
+		var terrain = new Terrain(gfx.bitmap, 30, 5);
 		terrain.invalidate(new AABB(0, 0, gfx.width, gfx.height), FlxNapeSpace.space);
 
 		add(Cargo.create(AssetPaths.debug_square_red__png, 320, 100, 15));
