@@ -1,28 +1,27 @@
 package objects;
 
+import geometry.ContactBundle;
 import nape.geom.Vec2;
 import nape.phys.Body;
 
 class RopeContactPoint {
 	public var body:Body;
-	public var point:Vec2;
-	public var normal:Vec2;
+	public var contact:ContactBundle;
 
-	public function new(b:Body, p:Vec2, n:Vec2) {
+	public function new(b:Body, c:ContactBundle) {
 		body = b;
-		point = p;
-		normal = n;
+		contact = c;
 	}
 
 	public function getWorldPoint():Vec2 {
-		return point.copy().rotate(body.rotation).add(body.position);
+		return contact.point.copy().rotate(body.rotation).add(body.position);
 	}
 
 	public function getWorldNormal():Vec2 {
-		return normal.copy().rotate(body.rotation);
+		return contact.normal.copy().rotate(body.rotation);
 	}
 
 	public function copy():RopeContactPoint {
-		return new RopeContactPoint(body, point.copy(), normal.copy());
+		return new RopeContactPoint(body, contact.copy());
 	}
 }

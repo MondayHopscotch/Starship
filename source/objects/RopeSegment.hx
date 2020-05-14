@@ -1,5 +1,6 @@
 package objects;
 
+import geometry.ContactBundle;
 import nape.geom.Vec2;
 import nape.phys.Body;
 
@@ -10,15 +11,15 @@ class RopeSegment {
 	public var contact2:RopeContactPoint;
 
 	public static function fromContacts(s:RopeContactPoint, e:RopeContactPoint):RopeSegment {
-		return new RopeSegment(s.body, s.point.copy(), s.normal.copy(), e.body, e.point.copy(), e.normal.copy());
+		return new RopeSegment(s.body, s.contact.copy(), e.body, e.contact.copy());
 	}
 
-	public function new(b1:Body, a1:Vec2, n1:Vec2, b2:Body, a2:Vec2, n2:Vec2) {
-		contact1 = new RopeContactPoint(b1, a1, n1);
-		contact2 = new RopeContactPoint(b2, a2, n2);
+	public function new(b1:Body, c1:ContactBundle, b2:Body, c2:ContactBundle) {
+		contact1 = new RopeContactPoint(b1, c1);
+		contact2 = new RopeContactPoint(b2, c2);
 	}
 
 	public function length():Float {
-		return Vec2.distance(contact1.body.getWorldPoint(contact1.point), contact2.body.getWorldPoint(contact2.point));
+		return Vec2.distance(contact1.getWorldPoint(), contact2.getWorldPoint());
 	}
 }

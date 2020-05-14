@@ -5,8 +5,10 @@ import constants.CbTypes;
 import flixel.addons.nape.FlxNapeSprite;
 import flixel.system.FlxAssets.FlxGraphicAsset;
 import nape.dynamics.InteractionFilter;
+import nape.phys.Body;
 import nape.phys.BodyType;
 import nape.phys.Material;
+import nape.shape.Polygon;
 import objects.SelfAssigningFlxNapeSprite;
 
 class Creators {
@@ -60,6 +62,26 @@ class Creators {
 		testBlock.createRectangularBody(width, height);
 		testBlock.scale.set(width / 3, height / 3);
 		testBlock.body.type = BodyType.STATIC;
+		testBlock.body.setShapeFilters(new InteractionFilter(CGroups.TERRAIN));
+		testBlock.body.cbTypes.add(CbTypes.CB_TERRAIN);
+
+		return testBlock;
+	}
+
+	public static function makeShape(x:Float, y:Float, width:Float, height:Float, sides:Int) {
+		var testBlock = new SelfAssigningFlxNapeSprite();
+		testBlock.loadGraphic(AssetPaths.debug_square_blue__png);
+		testBlock.setPosition(x, y);
+		var body = new Body(BodyType.STATIC);
+		var poly = new Polygon(Polygon.regular(width, height, sides));
+		body.shapes.add(poly);
+
+		var shipFilter = new InteractionFilter(CGroups.SHIP, ~(CGroups.CARGO));
+		body.setShapeFilters(shipFilter);
+
+		testBlock.addPremadeBody(body);
+		// testBlock.scale.set(width / 3, height / 3);
+		// testBlock.body.type = BodyType.STATIC;
 		testBlock.body.setShapeFilters(new InteractionFilter(CGroups.TERRAIN));
 		testBlock.body.cbTypes.add(CbTypes.CB_TERRAIN);
 

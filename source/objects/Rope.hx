@@ -4,6 +4,8 @@ import constants.CGroups;
 import flixel.FlxG;
 import flixel.addons.nape.FlxNapeSpace;
 import flixel.addons.nape.FlxNapeSprite;
+import geometry.ContactBundle;
+import geometry.Shapes;
 import nape.constraint.DistanceJoint;
 import nape.constraint.PulleyJoint;
 import nape.dynamics.InteractionFilter;
@@ -62,7 +64,8 @@ class Rope {
 		ends.space = FlxNapeSpace.space;
 
 		segments = [
-			new RopeSegment(a.body, aAnchor.copy(), Vec2.get(), b.body, bAnchor.copy(), Vec2.get())
+			new RopeSegment(a.body, new ContactBundle(aAnchor.copy(), Vec2.get(), Vec2.get()), b.body,
+				new ContactBundle(bAnchor.copy(), Vec2.get(), Vec2.get()))
 		];
 	}
 
@@ -110,9 +113,9 @@ class Rope {
 			pulley.active = true;
 			pulley.space = FlxNapeSpace.space;
 			pulley.body2 = segments[0].contact2.body;
-			pulley.anchor2 = segments[0].contact2.point;
+			pulley.anchor2 = segments[0].contact2.contact.point;
 			pulley.body3 = segments[segments.length - 1].contact1.body;
-			pulley.anchor3 = segments[segments.length - 1].contact1.point;
+			pulley.anchor3 = segments[segments.length - 1].contact1.contact.point;
 			pulley.jointMax = getRopeLooseLength();
 		} else {
 			pulley.active = false;
@@ -136,8 +139,6 @@ class Rope {
 			segments.insert(index, toStart);
 			var toEnd = RopeSegment.fromContacts(contact, end);
 			segments.insert(index + 1, toEnd);
-			trace("Local Normal for new Point: " + contact.getWorldNormal());
-			trace("World Normal for new Point: " + contact.getWorldNormal());
 		}
 	}
 
@@ -160,12 +161,12 @@ class Rope {
 				return;
 			}
 
-			var pointLocal = segments[a].contact2.point.copy().rotate(segments[a].contact2.body.rotation);
-			// segments[a].contact2.body.
-			var pointNormalVector = pointLocal.copy().normalise();
-			var pointWorldPosition = segments[a].contact2.body.position.add(pointLocal);
-			var startPosition = start.point.copy().rotate(start.body.rotation).add(start.body.position);
-			var endPosition = end.point.copy().rotate(end.body.rotation).add(end.body.position);
+			var pointNormalVector = segments[a].contact2.getWorldNormal();
+
+			// we want all 3 of these to be relative to their respective shapes' centers
+			var pointWorldPosition = segments[a].contact2.getWorldPoint();
+			var startPosition = start.getWorldPoint();
+			var endPosition = end.getWorldPoint();
 
 			var startVector = startPosition.sub(pointWorldPosition).normalise();
 			var endVector = endPosition.sub(pointWorldPosition).normalise();
@@ -183,9 +184,9 @@ class Rope {
 
 	function castRopeSameBody(start:RopeContactPoint, end:RopeContactPoint):RopeContactPoint {
 		var newStart = start.copy();
-		newStart.point = newStart.point.add(newStart.point.normalise());
+		newStart.contact.point = newStart.contact.point.add(newStart.contact.point.normalise());
 		var newEnd = end.copy();
-		newEnd.point = newEnd.point.add(newEnd.point.normalise());
+		newEnd.contact.point = newEnd.contact.point.add(newEnd.contact.point.normalise());
 		return castRope(newStart, newEnd);
 	}
 
@@ -249,6 +250,7 @@ class Rope {
 		}
 
 		var localPoint = result.shape.body.getLocalPoint(newContactCoords);
+		var localCenter = Shapes.getCenter(result.shape);
 		var localNormal = Vec2.get();
 		if (result.shape.isPolygon()) {
 			var verts:Vec2List = cast(result.shape, Polygon).localVerts;
@@ -276,18 +278,18 @@ class Rope {
 			localNormal.set(leftNormal.add(rightNormal).normalise());
 		}
 
-		if (result.shape.body == start.body && Vec2.distance(localPoint, start.point) == 0) {
+		if (result.shape.body == start.body && Vec2.distance(localPoint, start.contact.point) == 0) {
 			// colliding with the same shape, at same vertex, no new rope point
 			// trace("Collided with start point");
 			return null;
 		}
 
-		if (result.shape.body == end.body && Vec2.distance(localPoint, end.point) == 0) {
+		if (result.shape.body == end.body && Vec2.distance(localPoint, end.contact.point) == 0) {
 			// colliding with the same shape, at same vertex, no new rope point
 			// trace("Collided with end point");
 			return null;
 		}
 
-		return new RopeContactPoint(result.shape.body, localPoint, localNormal);
+		return new RopeContactPoint(result.shape.body, new ContactBundle(localPoint, localNormal, localCenter));
 	}
 }

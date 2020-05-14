@@ -1,12 +1,12 @@
 package physics;
 
-import nape.shape.Polygon;
-import nape.phys.BodyType;
 import nape.geom.AABB;
 import nape.geom.IsoFunction.IsoFunctionDef;
 import nape.geom.MarchingSquares;
 import nape.geom.Vec2;
 import nape.phys.Body;
+import nape.phys.BodyType;
+import nape.shape.Polygon;
 import nape.space.Space;
 import openfl.display.BitmapData;
 
@@ -77,7 +77,9 @@ class Terrain {
 				for (p in polys) {
 					var qolys = p.convexDecomposition(true);
 					for (q in qolys) {
-						b.shapes.add(new Polygon(q));
+						var bodyPoly = new Polygon(q);
+						trace(bodyPoly.localVerts);
+						b.shapes.add(bodyPoly);
 
 						// Recycle GeomPoly and its vertices
 						q.dispose();

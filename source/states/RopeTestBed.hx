@@ -44,10 +44,19 @@ class RopeTestBed extends BackableState {
 
 	function createTestObjs() {
 		add(Creators.makeBlock(300, 300, 40, 40));
-		add(Creators.makeBlock(400, 350, 40, 40));
+		// add(Creators.makeBlock(400, 350, 40, 40));
+		var shapeTest = Creators.makeShape(400, 350, 40, 40, 5);
+		shapeTest.body.space = null;
+		for (s in shapeTest.body.shapes) {
+			for (vert in s.castPolygon.localVerts) {
+				vert.x += 30;
+			}
+		}
+		shapeTest.body.space = FlxNapeSpace.space;
+		add(shapeTest);
 
-		cargo1 = Cargo.create(AssetPaths.debug_square_red__png, 50, 300, 25);
-		cargo2 = Cargo.create(AssetPaths.debug_square_red__png, 300, 300, 25);
+		cargo1 = Cargo.create(AssetPaths.debug_square_red__png, 50, 250, 25);
+		cargo2 = Cargo.create(AssetPaths.debug_square_red__png, 300, 250, 25);
 		add(cargo1);
 		add(cargo2);
 
