@@ -34,38 +34,49 @@ class Rope {
 		segments = [];
 	}
 
-	public function attach(a:FlxNapeSprite, aAnchor:Vec2, b:Towable, bAnchor:Vec2, length:Float) {
+	public function attach(a:FlxNapeSprite, aContact:ContactBundle, b:Towable, bContact:ContactBundle, length:Float) {
 		objA = a;
 		objB = b;
 		maxLength = length;
 
 		if (ends == null) {
-			ends = new DistanceJoint(a.body, b.body, aAnchor, bAnchor, 0, maxLength);
+			ends = new DistanceJoint(a.body, b.body, aContact.point, bContact.point, 0, maxLength);
 			ends.stiff = false;
 			ends.frequency = 20;
 			ends.damping = 4;
 			ends.space = FlxNapeSpace.space;
 		} else {
 			ends.body2 = b.body;
-			ends.anchor2 = bAnchor;
+			ends.anchor2 = bContact.point;
 		}
 		b.inTow(ends);
 
 		if (pulley == null) {
 			// to get around limitations of how this can be constructed, we are criss-crossing the bodies
-			pulley = new PulleyJoint(a.body, b.body, a.body, b.body, aAnchor, bAnchor, aAnchor, bAnchor, 0, maxLength, 1);
-			pulley.active = false;
+			pulley = new PulleyJoint(a.body, b.body, a.body, b.body, aContact.point, bContact.point, aContact.point, bContact.point, 0, maxLength, 1);
 			pulley.space = FlxNapeSpace.space;
 			pulley.stiff = false;
 			ends.frequency = 20;
 			ends.damping = 4;
+		} else {
+			pulley.space = FlxNapeSpace.space;
+			pulley.body1 = a.body;
+			pulley.anchor1 = aContact.point;
+			pulley.body2 = b.body;
+			pulley.anchor2 = bContact.point;
+			pulley.body3 = a.body;
+			pulley.anchor3 = aContact.point;
+			pulley.body4 = b.body;
+			pulley.anchor4 = bContact.point;
 		}
+		pulley.active = false;
 		ends.active = true;
 		ends.space = FlxNapeSpace.space;
 
+		var bNormal = bContact.point.copy().normalise();
 		segments = [
-			new RopeSegment(a.body, new ContactBundle(aAnchor.copy(), Vec2.get(), Vec2.get()), b.body,
-				new ContactBundle(bAnchor.copy(), Vec2.get(), Vec2.get()))
+			new RopeSegment(a.body, new ContactBundle(aContact.point.copy(), Vec2.get(), Vec2.get()), b.body,
+				new ContactBundle(bContact.point.copy(), bNormal, Vec2.get()))
 		];
 	}
 
@@ -127,10 +138,14 @@ class Rope {
 		var start = segments[index].contact1;
 		var end = segments[index].contact2;
 		var contact = castRope(start, end);
+		if (contact == null) {
+			contact = castRope(end, start);
+		}
+
 		if (contact != null) {
 			var distFromStart = Vec2.distance(start.getWorldPoint(), contact.getWorldPoint());
 			var distFromEnd = Vec2.distance(end.getWorldPoint(), contact.getWorldPoint());
-			if (distFromStart < 10 || distFromEnd < 10) {
+			if (distFromStart < 1 || distFromEnd < 1) {
 				return;
 			}
 

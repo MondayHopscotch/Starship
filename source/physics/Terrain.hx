@@ -78,7 +78,7 @@ class Terrain {
 					var qolys = p.convexDecomposition(true);
 					for (q in qolys) {
 						var bodyPoly = new Polygon(q);
-						trace(bodyPoly.localVerts);
+						// trace(bodyPolyelocalVerts);
 						b.shapes.add(bodyPoly);
 
 						// Recycle GeomPoly and its vertices

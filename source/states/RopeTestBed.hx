@@ -7,6 +7,7 @@ import flixel.FlxState;
 import flixel.addons.nape.FlxNapeSpace;
 import flixel.addons.nape.FlxNapeSprite;
 import flixel.system.FlxAssets.FlxGraphicAsset;
+import geometry.ContactBundle;
 import nape.constraint.PivotJoint;
 import nape.dynamics.InteractionFilter;
 import nape.geom.Vec2;
@@ -61,8 +62,9 @@ class RopeTestBed extends BackableState {
 		add(cargo2);
 
 		rope = new Rope();
-		rope.attach(cargo1, Vec2.get(), cargo2, Vec2.get(12.5, 12.5), Vec2.distance(cargo1.body.position, cargo2.body.position) + 1);
-		// rope.attach(cargo1, Vec2.get(), cargo2, Vec2.get(), Vec2.distance(cargo1.body.position, cargo2.body.position) + 1);
+		var c1Contact = new ContactBundle(Vec2.get(), Vec2.get(), Vec2.get());
+		var c2Contact = new ContactBundle(Vec2.get(12.5, 12.5), Vec2.get(12.5, 12.5).normalise(), Vec2.get());
+		rope.attach(cargo1, c1Contact, cargo2, c2Contact, Vec2.distance(cargo1.body.position, cargo2.body.position) + 1);
 	}
 
 	override public function update(elapsed:Float) {

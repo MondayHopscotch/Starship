@@ -5,6 +5,7 @@ import constants.CbTypes;
 import flixel.FlxG;
 import flixel.addons.nape.FlxNapeSpace;
 import flixel.group.FlxGroup;
+import geometry.ContactBundle;
 import input.BasicControls;
 import nape.callbacks.CbEvent;
 import nape.callbacks.InteractionCallback;
@@ -120,7 +121,11 @@ class Ship extends FlxGroup {
 			trace("nearest target is type: " + Type.typeof(result.shape.body.userData.data));
 			return false;
 		} else {
-			rope.attach(shipBody, Vec2.get(), cargo, ray.at(result.distance).sub(cargo.body.position).rotate(-cargo.body.rotation), maxLength);
+			var norm = result.normal;
+			var cargoContactPoint = ray.at(result.distance).sub(cargo.body.position).rotate(-cargo.body.rotation);
+			var cargoCol = new ContactBundle(cargoContactPoint, norm, Vec2.get());
+			var shipCol = new ContactBundle(Vec2.get(), Vec2.get(), Vec2.get());
+			rope.attach(shipBody, shipCol, cargo, cargoCol, maxLength);
 			return true;
 		}
 	}
