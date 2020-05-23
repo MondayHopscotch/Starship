@@ -72,6 +72,7 @@ class Terrain {
 
 				if (b == null) {
 					cells[y * width + x] = b = new Body(BodyType.STATIC);
+					b.userData.data = this;
 				}
 
 				for (p in polys) {
@@ -98,6 +99,8 @@ class Terrain {
 				b.space = space;
 			}
 		}
+
+		crunchVertices();
 	}
 
 	// iso-function for terrain, computed as a linearly-interpolated
@@ -133,5 +136,9 @@ class Terrain {
 
 		var ret = gx * gy * a00 + fx * gy * a10 + gx * fy * a01 + fx * fy * a11;
 		return 0x80 - ret;
+	}
+
+	function crunchVertices() {
+		// TODO: set up a list of valid pivot points / rope contact points and their normals
 	}
 }

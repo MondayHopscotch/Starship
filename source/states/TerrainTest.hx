@@ -34,7 +34,7 @@ class TerrainTest extends BackableState {
 		FlxG.bitmap.add(AssetPaths.testLevel__png, true, "terrainTest");
 		var gfx = FlxG.bitmap.get("terrainTest");
 
-		var terrain = new Terrain(gfx.bitmap, 30, 5);
+		var terrain = new Terrain(gfx.bitmap, 30, 15);
 		terrain.invalidate(new AABB(0, 0, gfx.width, gfx.height), FlxNapeSpace.space);
 
 		add(Cargo.create(AssetPaths.debug_square_red__png, 320, 100, 15));
@@ -42,5 +42,13 @@ class TerrainTest extends BackableState {
 
 	override public function update(elapsed:Float) {
 		super.update(elapsed);
+
+		if (FlxG.keys.justPressed.SPACE) {
+			FlxG.camera.zoom += 1;
+		}
+
+		if (FlxG.keys.justPressed.X) {
+			FlxG.camera.zoom -= 1;
+		}
 	}
 }

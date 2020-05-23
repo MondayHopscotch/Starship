@@ -86,6 +86,10 @@ class Rope {
 		ends.space = null;
 		pulley.active = false;
 		pulley.space = null;
+		for (s in segments) {
+			s.contact1.kill();
+			s.contact2.kill();
+		}
 		segments = [];
 	}
 
@@ -132,6 +136,10 @@ class Rope {
 			pulley.active = false;
 			pulley.space = null;
 		}
+
+		for (i in 0...segments.length - 1) {
+			FlxG.state.add(segments[i].contact2);
+		}
 	}
 
 	function checkNewContact(index:Int) {
@@ -149,6 +157,8 @@ class Rope {
 				return;
 			}
 
+			segments[index].contact1.kill();
+			segments[index].contact2.kill();
 			segments.remove(segments[index]);
 			var toStart = RopeSegment.fromContacts(start, contact);
 			segments.insert(index, toStart);
@@ -190,7 +200,11 @@ class Rope {
 
 			if (totalVector.dot(pointNormalVector) > 0) {
 				var newSegment = RopeSegment.fromContacts(start, end);
+				segments[b].contact1.kill();
+				segments[b].contact2.kill();
 				segments.remove(segments[b]);
+				segments[a].contact1.kill();
+				segments[a].contact2.kill();
 				segments.remove(segments[a]);
 				segments.insert(a, newSegment);
 			}
@@ -255,16 +269,13 @@ class Rope {
 		}
 
 		var newContactCoords = ray.at(result.distance);
-		if (Vec2.distance(startWorldPoint, newContactCoords) <= 0) {
-			// don't allow contacts too close together
-			return null;
-		}
-		if (Vec2.distance(endWorldPoint, newContactCoords) <= 0) {
-			// don't allow contacts too close together
-			return null;
-		}
 
 		var localPoint = result.shape.body.getLocalPoint(newContactCoords);
+		if (result.shape.body.userData != null) {
+			if (result.shape.body.userData.data) {
+				// TODO: use the valid vertices from this bad boy
+			}
+		}
 		var localCenter = Shapes.getCenter(result.shape);
 		var localNormal = Vec2.get();
 		if (result.shape.isPolygon()) {
@@ -279,6 +290,16 @@ class Rope {
 				}
 			}
 			localPoint = verts.at(matchIndex).copy();
+
+			if (Vec2.distance(startWorldPoint, result.shape.body.getWorldPoint(localPoint)) == 0) {
+				// don't allow redundant too close together
+				return null;
+			}
+			if (Vec2.distance(endWorldPoint, result.shape.body.getWorldPoint(localPoint)) == 0) {
+				// don't allow redundant too close together
+				return null;
+			}
+
 			var leftNormal = verts.at((matchIndex + verts.length - 1) % verts.length)
 				.copy()
 				.sub(verts.at(matchIndex))
@@ -306,5 +327,6 @@ class Rope {
 		}
 
 		return new RopeContactPoint(result.shape.body, new ContactBundle(localPoint, localNormal, localCenter));
+		// return new RopeContactPoint(result.shape.body, new ContactBundle(localPoint, result.normal, localCenter));
 	}
 }
