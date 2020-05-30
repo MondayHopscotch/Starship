@@ -4,6 +4,7 @@ import constants.CGroups;
 import flixel.FlxG;
 import flixel.addons.nape.FlxNapeSpace;
 import flixel.addons.nape.FlxNapeSprite;
+import flixel.math.FlxAngle;
 import geometry.ContactBundle;
 import geometry.Shapes;
 import nape.constraint.DistanceJoint;
@@ -112,6 +113,12 @@ class Rope {
 			return;
 		}
 
+		// only update the ends as they are the only points that can move currently.
+		segments[0].update(delta);
+		segments[segments.length - 1].update(delta);
+		FlxG.watch.addQuick("Head Delta:", segments[0].delta());
+		FlxG.watch.addQuick("Tail Delta:", segments[segments.length - 1].delta());
+
 		// only checking ends
 		checkNewContact(0);
 		checkNewContact(segments.length - 1);
@@ -142,17 +149,28 @@ class Rope {
 		}
 	}
 
+	function getRopeNormal(segment:RopeSegment):Vec2 {
+		var delta = segment.delta().muleq(-1);
+		var ropeNormal = segment.contact1.worldPoint.sub(segment.contact2.worldPoint).perp().normalise();
+		if (delta.dot(ropeNormal) > 0) {
+			return ropeNormal;
+		} else {
+			return ropeNormal.muleq(-1);
+		}
+	}
+
 	function checkNewContact(index:Int) {
 		var start = segments[index].contact1;
 		var end = segments[index].contact2;
-		var contact = castRope(start, end);
+		var norm = getRopeNormal(segments[index]);
+		var contact = castRope(start, end, norm);
 		if (contact == null) {
-			contact = castRope(end, start);
+			contact = castRope(end, start, norm);
 		}
 
 		if (contact != null) {
-			var distFromStart = Vec2.distance(start.getWorldPoint(), contact.getWorldPoint());
-			var distFromEnd = Vec2.distance(end.getWorldPoint(), contact.getWorldPoint());
+			var distFromStart = Vec2.distance(start.worldPoint, contact.worldPoint);
+			var distFromEnd = Vec2.distance(end.worldPoint, contact.worldPoint);
 			if (distFromStart < 1 || distFromEnd < 1) {
 				return;
 			}
@@ -181,17 +199,17 @@ class Rope {
 					return;
 				}
 			}
-			if (FlxNapeSpace.space.bodiesUnderPoint(end.getWorldPoint()).has(start.body)) {
+			if (FlxNapeSpace.space.bodiesUnderPoint(end.worldPoint).has(start.body)) {
 				// we are inside / on edge. these don't count for removing other points
 				return;
 			}
 
-			var pointNormalVector = segments[a].contact2.getWorldNormal();
+			var pointNormalVector = segments[a].contact2.worldNormal;
 
 			// we want all 3 of these to be relative to their respective shapes' centers
-			var pointWorldPosition = segments[a].contact2.getWorldPoint();
-			var startPosition = start.getWorldPoint();
-			var endPosition = end.getWorldPoint();
+			var pointWorldPosition = segments[a].contact2.worldPoint;
+			var startPosition = start.worldPoint;
+			var endPosition = end.worldPoint;
 
 			var startVector = startPosition.sub(pointWorldPosition).normalise();
 			var endVector = endPosition.sub(pointWorldPosition).normalise();
@@ -234,9 +252,9 @@ class Rope {
 	}
 
 	// Casts to find if there is any contact point between the given two points, returning it if found
-	function castRope(start:RopeContactPoint, end:RopeContactPoint):RopeContactPoint {
-		var startWorldPoint = start.getWorldPoint();
-		var endWorldPoint = end.getWorldPoint();
+	function castRope(start:RopeContactPoint, end:RopeContactPoint, normalInfluece:Vec2 = null):RopeContactPoint {
+		var startWorldPoint = start.worldPoint;
+		var endWorldPoint = end.worldPoint;
 
 		// if (startWorldPoint.x == endWorldPoint.x && startWorldPoint.y == endWorldPoint.y) {
 		// 	trace("samsies");
@@ -271,14 +289,13 @@ class Rope {
 		var newContactCoords = ray.at(result.distance);
 
 		var localPoint = result.shape.body.getLocalPoint(newContactCoords);
-		if (result.shape.body.userData != null) {
-			if (result.shape.body.userData.data) {
-				// TODO: use the valid vertices from this bad boy
-			}
-		}
 		var localCenter = Shapes.getCenter(result.shape);
 		var localNormal = Vec2.get();
-		if (result.shape.isPolygon()) {
+		var vertexResolveVec = Vec2.get();
+
+		if (!result.shape.isPolygon()) {
+			FlxG.watch.addQuick("collision detected:", false);
+		} else {
 			var verts:Vec2List = cast(result.shape, Polygon).localVerts;
 			var dist:Float = Math.POSITIVE_INFINITY;
 			var matchIndex:Int = -1;
@@ -289,6 +306,7 @@ class Rope {
 					dist = newDist;
 				}
 			}
+			vertexResolveVec.set(verts.at(matchIndex).sub(localPoint));
 			localPoint = verts.at(matchIndex).copy();
 
 			if (Vec2.distance(startWorldPoint, result.shape.body.getWorldPoint(localPoint)) == 0) {
@@ -300,18 +318,28 @@ class Rope {
 				return null;
 			}
 
-			var leftNormal = verts.at((matchIndex + verts.length - 1) % verts.length)
-				.copy()
-				.sub(verts.at(matchIndex))
-				.rotate(Math.PI / 2)
-				.normalise();
-			var rightNormal = verts.at(matchIndex)
-				.copy()
-				.sub(verts.at((matchIndex + verts.length + 1) % verts.length))
-				.rotate(Math.PI / 2)
-				.normalise();
+			if (normalInfluece != null && normalInfluece.length > 0) {
+				localNormal = normalInfluece.normalise();
+			} else {
+				var leftNormal = verts.at((matchIndex + verts.length - 1) % verts.length)
+					.copy()
+					.sub(verts.at(matchIndex))
+					.rotate(Math.PI / 2)
+					.normalise();
+				var rightNormal = verts.at(matchIndex)
+					.copy()
+					.sub(verts.at((matchIndex + verts.length + 1) % verts.length))
+					.rotate(Math.PI / 2)
+					.normalise();
 
-			localNormal.set(leftNormal.add(rightNormal).normalise());
+				var ropeNormal = ray.direction.perp().normalise();
+				var normalCandidate = leftNormal.add(rightNormal).normalise();
+				if (normalCandidate.dot(ropeNormal) > 0) {
+					localNormal = ropeNormal;
+				} else {
+					localNormal = ropeNormal.muleq(-1);
+				}
+			}
 		}
 
 		if (result.shape.body == start.body && Vec2.distance(localPoint, start.contact.point) == 0) {
