@@ -75,10 +75,26 @@ class Rope {
 		ends.space = FlxNapeSpace.space;
 
 		var bNormal = bContact.point.copy().normalise();
-		segments = [
-			new RopeSegment(a.body, new ContactBundle(aContact.point.copy(), Vec2.get(), Vec2.get()), b.body,
-				new ContactBundle(bContact.point.copy(), bNormal, Vec2.get()))
-		];
+		segments = [];
+		var seg = new RopeSegment(a.body, new ContactBundle(aContact.point.copy(), Vec2.get(), Vec2.get()), b.body,
+			new ContactBundle(bContact.point.copy(), bNormal, Vec2.get()));
+		addSegment(seg);
+	}
+
+	public function addSegment(s:RopeSegment, index:Int = -1) {
+		if (index == -1) {
+			segments.push(s);
+		} else {
+			segments.insert(index, s);
+		}
+		FlxG.state.add(s);
+	}
+
+	public function removeSegment(index:Int) {
+		segments[index].kill();
+		segments[index].contact1.kill();
+		segments[index].contact2.kill();
+		segments.remove(segments[index]);
 	}
 
 	public function detach() {
@@ -90,6 +106,7 @@ class Rope {
 		for (s in segments) {
 			s.contact1.kill();
 			s.contact2.kill();
+			s.kill();
 		}
 		segments = [];
 	}
@@ -145,7 +162,8 @@ class Rope {
 		}
 
 		for (i in 0...segments.length - 1) {
-			FlxG.state.add(segments[i].contact2);
+			FlxG.state.add(segments[i]);
+			// FlxG.state.add(segments[i].contact2);
 		}
 	}
 
@@ -177,11 +195,11 @@ class Rope {
 
 			segments[index].contact1.kill();
 			segments[index].contact2.kill();
-			segments.remove(segments[index]);
+			removeSegment(index);
 			var toStart = RopeSegment.fromContacts(start, contact);
-			segments.insert(index, toStart);
+			addSegment(toStart, index);
 			var toEnd = RopeSegment.fromContacts(contact, end);
-			segments.insert(index + 1, toEnd);
+			addSegment(toEnd, index + 1);
 		}
 	}
 
@@ -218,13 +236,9 @@ class Rope {
 
 			if (totalVector.dot(pointNormalVector) > 0) {
 				var newSegment = RopeSegment.fromContacts(start, end);
-				segments[b].contact1.kill();
-				segments[b].contact2.kill();
-				segments.remove(segments[b]);
-				segments[a].contact1.kill();
-				segments[a].contact2.kill();
-				segments.remove(segments[a]);
-				segments.insert(a, newSegment);
+				removeSegment(b);
+				removeSegment(a);
+				addSegment(newSegment, a);
 			}
 		}
 	}

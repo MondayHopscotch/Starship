@@ -1,13 +1,18 @@
 package objects;
 
 import flixel.FlxBasic;
+import flixel.FlxG;
+import flixel.addons.display.FlxTiledSprite;
+import flixel.math.FlxAngle;
 import geometry.ContactBundle;
 import nape.geom.Vec2;
 import nape.phys.Body;
+import render.RotatingTiledSprite;
 
 using extensions.BodyExt;
+using extensions.FlxObjectExt;
 
-class RopeSegment extends FlxBasic {
+class RopeSegment extends RotatingTiledSprite {
 	public var contact1:RopeContactPoint;
 	public var contact2:RopeContactPoint;
 
@@ -19,7 +24,7 @@ class RopeSegment extends FlxBasic {
 	}
 
 	public function new(b1:Body, c1:ContactBundle, b2:Body, c2:ContactBundle) {
-		super();
+		super(AssetPaths.rope__png, 32, 32, true, false);
 		contact1 = new RopeContactPoint(b1, c1);
 		contact2 = new RopeContactPoint(b2, c2);
 	}
@@ -30,6 +35,7 @@ class RopeSegment extends FlxBasic {
 
 	override public function update(delta:Float) {
 		super.update(delta);
+
 		contact1.updateWorldPoint();
 		contact1.updateWorldNormal();
 		contact2.updateWorldPoint();
@@ -37,6 +43,10 @@ class RopeSegment extends FlxBasic {
 
 		lastCenter.set(center);
 		center.set(contact2.worldPoint).addeq(contact1.worldPoint).muleq(0.5);
+		this.width = length();
+		this.angle = contact2.worldPoint.sub(contact1.worldPoint).angle * FlxAngle.TO_DEG;
+		FlxG.watch.addQuick("Angle: ", this.angle);
+		this.setMidpoint(center.x, center.y);
 	}
 
 	public function delta():Vec2 {
