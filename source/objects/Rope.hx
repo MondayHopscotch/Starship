@@ -161,9 +161,16 @@ class Rope {
 			pulley.space = null;
 		}
 
-		for (i in 0...segments.length - 1) {
+		var offset = 0.0;
+		var i = segments.length - 1;
+		while (i >= 0) {
 			FlxG.state.add(segments[i]);
+			offset += segments[i].getSpriteOffsetAmount();
+			segments[i].setSpriteOffset(offset);
+			// To display normals
 			// FlxG.state.add(segments[i].contact2);
+
+			i--;
 		}
 	}
 

@@ -19,6 +19,8 @@ class RopeSegment extends RotatingTiledSprite {
 	private var center:Vec2 = Vec2.get();
 	private var lastCenter:Vec2 = Vec2.get();
 
+	private var spriteOffset:Float = 0;
+
 	public static function fromContacts(s:RopeContactPoint, e:RopeContactPoint):RopeSegment {
 		return new RopeSegment(s.body, s.contact.copy(), e.body, e.contact.copy());
 	}
@@ -27,6 +29,14 @@ class RopeSegment extends RotatingTiledSprite {
 		super(AssetPaths.rope__png, 32, 32, true, false);
 		contact1 = new RopeContactPoint(b1, c1);
 		contact2 = new RopeContactPoint(b2, c2);
+	}
+
+	public function setSpriteOffset(o:Float) {
+		spriteOffset = o;
+	}
+
+	public function getSpriteOffsetAmount():Float {
+		return length() % 32;
 	}
 
 	public function length():Float {
@@ -45,6 +55,7 @@ class RopeSegment extends RotatingTiledSprite {
 		center.set(contact2.worldPoint).addeq(contact1.worldPoint).muleq(0.5);
 		this.width = length();
 		this.angle = contact2.worldPoint.sub(contact1.worldPoint).angle * FlxAngle.TO_DEG;
+		scrollX = spriteOffset;
 		FlxG.watch.addQuick("Angle: ", this.angle);
 		this.setMidpoint(center.x, center.y);
 	}
