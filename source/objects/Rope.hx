@@ -132,9 +132,12 @@ class Rope {
 
 		// only update the ends as they are the only points that can move currently.
 		segments[0].update(delta);
-		segments[segments.length - 1].update(delta);
-		FlxG.watch.addQuick("Head Delta:", segments[0].delta());
-		FlxG.watch.addQuick("Tail Delta:", segments[segments.length - 1].delta());
+
+		if (segments.length > 1) {
+			segments[segments.length - 1].update(delta);
+			FlxG.watch.addQuick("Head Delta:", segments[0].delta());
+			FlxG.watch.addQuick("Tail Delta:", segments[segments.length - 1].delta());
+		}
 
 		// only checking ends
 		checkNewContact(0);
@@ -168,7 +171,7 @@ class Rope {
 			offset += segments[i].getSpriteOffsetAmount();
 			segments[i].setSpriteOffset(offset);
 			// To display normals
-			// FlxG.state.add(segments[i].contact2);
+			FlxG.state.add(segments[i].contact2);
 
 			i--;
 		}

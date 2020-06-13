@@ -17,7 +17,7 @@ class BackableState extends FlxState {
 
 		CbTypes.initTypes();
 		FlxNapeSpace.init();
-		FlxNapeSpace.drawDebug = true;
+		// FlxNapeSpace.drawDebug = true;
 		FlxNapeSpace.space.gravity.set(gravity);
 	}
 }

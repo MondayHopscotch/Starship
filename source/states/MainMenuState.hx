@@ -2,7 +2,6 @@ package states;
 
 import flixel.FlxG;
 import flixel.FlxState;
-import flixel.addons.transition.FlxTransitionableState;
 import flixel.ui.FlxButton;
 import flixel.util.FlxColor;
 
