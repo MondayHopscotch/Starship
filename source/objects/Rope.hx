@@ -290,22 +290,7 @@ class Rope {
 
 		var ray = Ray.fromSegment(startWorldPoint, endWorldPoint);
 		ray.maxDistance = Vec2.distance(startWorldPoint, endWorldPoint);
-		var results:RayResultList = FlxNapeSpace.space.rayMultiCast(ray, true, new InteractionFilter(CGroups.TERRAIN, CGroups.TERRAIN, 0, 0));
-		if (results == null || results.length == 0) {
-			return null;
-		}
-
-		var result:RayResult = null;
-
-		for (r in results) {
-			// not sure how to make this not collide with the ship sensor
-			// so... we'll just ignore sensors explicitly
-			if (!r.shape.sensorEnabled) {
-				result = r;
-				break;
-			}
-		}
-
+		var result:RayResult = FlxNapeSpace.space.rayCast(ray, true, new InteractionFilter(CGroups.TERRAIN, CGroups.TERRAIN, 0, 0));
 		if (result == null) {
 			return null;
 		}

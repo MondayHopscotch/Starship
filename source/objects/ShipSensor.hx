@@ -23,11 +23,11 @@ class ShipSensor extends SelfAssigningFlxNapeSprite {
 		var sensor = new Circle(radius);
 		sensor.sensorEnabled = true;
 		var filters = new InteractionFilter(CGroups.SHIP_SENSOR, CGroups.CARGO);
-		body.setShapeFilters(filters);
 		sensor.cbTypes.add(CbTypes.CB_SHIP_SENSOR_RANGE);
 		sensor.body = body;
 
 		addPremadeBody(body);
+		body.setShapeFilters(filters);
 		body.shapes.foreach(s -> s.material = weightless);
 		body.rotation = -Math.PI / 2;
 	}
