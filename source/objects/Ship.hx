@@ -4,7 +4,10 @@ import constants.CGroups;
 import constants.CbTypes;
 import flixel.FlxG;
 import flixel.addons.nape.FlxNapeSpace;
+import flixel.effects.particles.FlxEmitter;
 import flixel.group.FlxGroup;
+import flixel.math.FlxAngle;
+import flixel.util.FlxColor;
 import geometry.ContactBundle;
 import input.BasicControls;
 import nape.callbacks.CbEvent;
@@ -37,6 +40,8 @@ class Ship extends FlxGroup {
 
 	var sensor:ShipSensor;
 
+	var emitter:FlxEmitter;
+
 	public function new(x:Int, y:Int) {
 		super();
 
@@ -59,10 +64,19 @@ class Ship extends FlxGroup {
 			cargoEnterRangeCallback));
 		FlxNapeSpace.space.listeners.add(new InteractionListener(CbEvent.END, InteractionType.SENSOR, CbTypes.CB_SHIP_SENSOR_RANGE, CbTypes.CB_TOWABLE,
 			cargoExitRangeCallback));
+
+		emitter = new FlxEmitter();
+		emitter.launchMode = SQUARE;
+		emitter.makeParticles(2, 2, FlxColor.GRAY);
+		emitter.lifespan.min = 0.5;
+		emitter.lifespan.max = 0.75;
+		add(emitter);
 	}
 
 	override public function update(elapsed:Float) {
 		super.update(elapsed);
+
+		emitter.setPosition(shipBody.x + shipBody.boostPos().x, shipBody.y + shipBody.boostPos().y);
 
 		if (FlxG.mouse.justPressedRight) {
 			trace(Vec2.get(FlxG.mouse.x, FlxG.mouse.y));
@@ -76,6 +90,19 @@ class Ship extends FlxGroup {
 				.mul(elapsed)
 				.mul(controls.thruster.x)
 				.rotate(shipBody.body.rotation));
+
+			if (!emitter.exists) {
+				emitter.start(false);
+			} else {
+				emitter.emitting = true;
+			}
+
+			var velo = Vec2.get(-100, 0, true);
+			velo.rotate((shipBody.angle - 90) * FlxAngle.TO_RAD);
+			emitter.velocity.set(velo.x, velo.y, velo.x, velo.y, 0, 0, 0, 0);
+			velo.dispose();
+		} else {
+			emitter.emitting = false;
 		}
 
 		if (Math.abs(controls.steer.x) > 0.1) {
