@@ -7,6 +7,9 @@ import flixel.addons.nape.FlxNapeSpace;
 import flixel.effects.particles.FlxEmitter;
 import flixel.group.FlxGroup;
 import flixel.math.FlxAngle;
+import flixel.math.FlxMath;
+import flixel.math.FlxRandom;
+import flixel.math.FlxVector;
 import flixel.util.FlxColor;
 import geometry.ContactBundle;
 import input.BasicControls;
@@ -67,9 +70,13 @@ class Ship extends FlxGroup {
 
 		emitter = new FlxEmitter();
 		emitter.launchMode = SQUARE;
-		emitter.makeParticles(2, 2, FlxColor.GRAY);
+		emitter.makeParticles(2, 2, FlxColor.GRAY, 1000);
 		emitter.lifespan.min = 0.5;
 		emitter.lifespan.max = 0.75;
+		emitter.alpha.set(1, 1, 0.01, 0.05);
+		emitter.scale.set(1, 1, 1, 1, 1, 1, 2, 2);
+		emitter.start(false, 0.01);
+		emitter.emitting = false;
 		add(emitter);
 	}
 
@@ -91,14 +98,21 @@ class Ship extends FlxGroup {
 				.mul(controls.thruster.x)
 				.rotate(shipBody.body.rotation));
 
-			if (!emitter.exists) {
-				emitter.start(false);
-			} else {
-				emitter.emitting = true;
-			}
+			emitter.frequency = (1 - controls.thruster.x) * 0.1;
+			emitter.emitting = true;
 
-			var velo = Vec2.get(-100, 0, true);
-			velo.rotate((shipBody.angle - 90) * FlxAngle.TO_RAD);
+			var velo = Vec2.get(-100, 0, false);
+			var rotation = (shipBody.angle - 90 + (FlxG.random.int(0, 10) - 5)) * FlxAngle.TO_RAD;
+
+			velo.rotate(rotation);
+			var shipVelImpact = shipBody.body.velocity.dot(velo);
+			velo.addeq(shipBody.body.velocity);
+			velo.rotate(-rotation);
+
+			// don't let our smoke emit moving forward. At best the smoke is stationary
+			velo.x = Math.min(velo.x, 0);
+			velo.rotate(rotation);
+
 			emitter.velocity.set(velo.x, velo.y, velo.x, velo.y, 0, 0, 0, 0);
 			velo.dispose();
 		} else {
