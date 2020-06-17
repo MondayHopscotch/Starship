@@ -43,7 +43,8 @@ class Ship extends FlxGroup {
 
 	var sensor:ShipSensor;
 
-	var emitter:FlxEmitter;
+	var thrustEmitter:FlxEmitter;
+	var dustEmitter:FlxEmitter;
 
 	public function new(x:Int, y:Int) {
 		super();
@@ -68,22 +69,33 @@ class Ship extends FlxGroup {
 		FlxNapeSpace.space.listeners.add(new InteractionListener(CbEvent.END, InteractionType.SENSOR, CbTypes.CB_SHIP_SENSOR_RANGE, CbTypes.CB_TOWABLE,
 			cargoExitRangeCallback));
 
-		emitter = new FlxEmitter();
-		emitter.launchMode = SQUARE;
-		emitter.makeParticles(2, 2, FlxColor.GRAY, 1000);
-		emitter.lifespan.min = 0.5;
-		emitter.lifespan.max = 0.75;
-		emitter.alpha.set(1, 1, 0.01, 0.05);
-		emitter.scale.set(1, 1, 1, 1, 1, 1, 2, 2);
-		emitter.start(false, 0.01);
-		emitter.emitting = false;
-		add(emitter);
+		thrustEmitter = new FlxEmitter();
+		thrustEmitter.launchMode = SQUARE;
+		thrustEmitter.makeParticles(2, 2, FlxColor.GRAY, 1000);
+		thrustEmitter.lifespan.min = 0.5;
+		thrustEmitter.lifespan.max = 0.75;
+		thrustEmitter.alpha.set(1, 1, 0.01, 0.05);
+		thrustEmitter.scale.set(1, 1, 1, 1, 1, 1, 2, 2);
+		thrustEmitter.start(false, 0.01);
+		thrustEmitter.emitting = false;
+		add(thrustEmitter);
+
+		dustEmitter = new FlxEmitter();
+		dustEmitter.launchMode = SQUARE;
+		dustEmitter.makeParticles(2, 2, FlxColor.GRAY, 1000);
+		dustEmitter.lifespan.min = 0.5;
+		dustEmitter.lifespan.max = 0.75;
+		dustEmitter.alpha.set(1, 1, 0.01, 0.05);
+		dustEmitter.scale.set(1, 1, 1, 1, 1, 1, 3, 3);
+		dustEmitter.start(false, 0.01);
+		dustEmitter.emitting = false;
+		add(dustEmitter);
 	}
 
 	override public function update(elapsed:Float) {
 		super.update(elapsed);
 
-		emitter.setPosition(shipBody.x + shipBody.boostPos().x, shipBody.y + shipBody.boostPos().y);
+		thrustEmitter.setPosition(shipBody.x + shipBody.boostPos().x, shipBody.y + shipBody.boostPos().y);
 
 		if (FlxG.mouse.justPressedRight) {
 			trace(Vec2.get(FlxG.mouse.x, FlxG.mouse.y));
@@ -98,25 +110,11 @@ class Ship extends FlxGroup {
 				.mul(controls.thruster.x)
 				.rotate(shipBody.body.rotation));
 
-			emitter.frequency = (1 - controls.thruster.x) * 0.1;
-			emitter.emitting = true;
-
-			var velo = Vec2.get(-100, 0, false);
-			var rotation = (shipBody.angle - 90 + (FlxG.random.int(0, 10) - 5)) * FlxAngle.TO_RAD;
-
-			velo.rotate(rotation);
-			var shipVelImpact = shipBody.body.velocity.dot(velo);
-			velo.addeq(shipBody.body.velocity);
-			velo.rotate(-rotation);
-
-			// don't let our smoke emit moving forward. At best the smoke is stationary
-			velo.x = Math.min(velo.x, 0);
-			velo.rotate(rotation);
-
-			emitter.velocity.set(velo.x, velo.y, velo.x, velo.y, 0, 0, 0, 0);
-			velo.dispose();
+			setThrustParticles(controls.thruster.x);
+			checkEnvironmentDustKickup(controls.thruster.x);
 		} else {
-			emitter.emitting = false;
+			thrustEmitter.emitting = false;
+			dustEmitter.emitting = false;
 		}
 
 		if (Math.abs(controls.steer.x) > 0.1) {
@@ -149,6 +147,61 @@ class Ship extends FlxGroup {
 				FlxG.log.notice("no tow in range");
 			}
 		}
+	}
+
+	private function setThrustParticles(power:Float):Void {
+		thrustEmitter.frequency = (1 - power) * 0.1;
+		thrustEmitter.emitting = true;
+
+		var velo = Vec2.get(-100, 0, false);
+		var rotation = (shipBody.angle - 90 + (FlxG.random.int(0, 10) - 5)) * FlxAngle.TO_RAD;
+
+		velo.rotate(rotation);
+		velo.addeq(shipBody.body.velocity);
+		velo.rotate(-rotation);
+
+		// don't let our smoke emit moving forward. At best the smoke is stationary
+		velo.x = Math.min(velo.x, 0);
+		velo.rotate(rotation);
+
+		thrustEmitter.velocity.set(velo.x, velo.y, velo.x, velo.y, 0, 0, 0, 0);
+		velo.dispose();
+	}
+
+	public function checkEnvironmentDustKickup(power:Float):Void {
+		var length = power * 150;
+		var origin = Vec2.get(shipBody.x + shipBody.boostPos().x, shipBody.y + shipBody.boostPos().y);
+		var end = origin.add(Vec2.get(1, 0, true).rotate(shipBody.body.rotation + FlxAngle.asRadians(90)).mul(length));
+		var ray = Ray.fromSegment(origin, end);
+		var result = FlxNapeSpace.space.rayCast(ray, false, new InteractionFilter(CGroups.TERRAIN, CGroups.TERRAIN, 0, 0));
+		if (result == null) {
+			dustEmitter.emitting = false;
+			return;
+		}
+
+		dustEmitter.frequency = (1 - power) * 0.1;
+
+		var pos = ray.at(result.distance);
+		dustEmitter.setPosition(pos.x, pos.y);
+		// dustEmitter.angle.set(pos.reflect(result.normal, true).angle);
+
+		var dustVariance = FlxAngle.asRadians(15);
+
+		var dustDir = result.normal.perp();
+		if (ray.direction.dot(dustDir) < 0) {
+			dustDir.muleq(-1);
+		} else {
+			dustVariance *= -1;
+		}
+
+		dustDir.muleq(100 * (power - (result.distance / ray.maxDistance)));
+
+		dustDir = dustDir.rotate(FlxG.random.float(0, dustVariance));
+
+		// dustDir.addeq(result.normal.mul(FlxG.random.float(0, dustVariance), true));
+
+		dustEmitter.velocity.set(dustDir.x, dustDir.y, dustDir.x, dustDir.y, 0, 0, 0, 0);
+		dustEmitter.emitting = true;
 	}
 
 	public function tetherCargo(cargo:Towable):Bool {
