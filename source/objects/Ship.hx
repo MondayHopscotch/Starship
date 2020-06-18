@@ -169,9 +169,9 @@ class Ship extends FlxGroup {
 	}
 
 	public function checkEnvironmentDustKickup(power:Float):Void {
-		var length = power * 150;
+		var maxDistance = power * 70;
 		var origin = Vec2.get(shipBody.x + shipBody.boostPos().x, shipBody.y + shipBody.boostPos().y);
-		var end = origin.add(Vec2.get(1, 0, true).rotate(shipBody.body.rotation + FlxAngle.asRadians(90)).mul(length));
+		var end = origin.add(Vec2.get(1, 0, true).rotate(shipBody.body.rotation + FlxAngle.asRadians(90)).mul(maxDistance));
 		var ray = Ray.fromSegment(origin, end);
 		var result = FlxNapeSpace.space.rayCast(ray, false, new InteractionFilter(CGroups.TERRAIN, CGroups.TERRAIN, 0, 0));
 		if (result == null) {
@@ -193,12 +193,26 @@ class Ship extends FlxGroup {
 		} else {
 			dustVariance *= -1;
 		}
-
+		// scale the dust splatter based on our power and the distance away from the ship
 		dustDir.muleq(100 * (power - (result.distance / ray.maxDistance)));
 
-		dustDir = dustDir.rotate(FlxG.random.float(0, dustVariance));
+		// this distance will be between sqrt(2) and 2
+		var dist = Vec2.distance(result.normal, ray.direction.normalise());
+		// normalize to a value between 0 and 1
+		var percentageSameDirection = (dist - FlxMath.SQUARE_ROOT_OF_TWO) / (2 - FlxMath.SQUARE_ROOT_OF_TWO);
 
-		// dustDir.addeq(result.normal.mul(FlxG.random.float(0, dustVariance), true));
+		// exagerate our falloff
+		percentageSameDirection = Math.pow(percentageSameDirection, 2);
+
+		// make value between 0 and 0.5 as perpendicular will split particles
+		percentageSameDirection /= 2;
+
+		if (FlxG.random.float() < percentageSameDirection) {
+			dustDir.muleq(-1);
+			dustVariance *= -1;
+		}
+
+		dustDir = dustDir.rotate(FlxG.random.float(0, dustVariance));
 
 		dustEmitter.velocity.set(dustDir.x, dustDir.y, dustDir.x, dustDir.y, 0, 0, 0, 0);
 		dustEmitter.emitting = true;

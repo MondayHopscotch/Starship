@@ -47,7 +47,7 @@ class LowPower extends BackableState {
 		ship = new Ship(cast(FlxG.width / 2, Int), FlxG.height - 50);
 		add(ship);
 
-		ship.enginePower.setxy(150, 0);
+		ship.enginePower.setxy(0, -150);
 
 		var knobRadius = 10;
 

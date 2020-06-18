@@ -45,7 +45,7 @@ class CargoState extends BackableState {
 		weightSlider.nameLabel.text = "cargo weight";
 		add(weightSlider);
 
-		thrustSlider = new FlxSlider(ship.enginePower, "x", 10, 150, 1, 1000, 300, 30, 3, 0xff555555, 0xff828282);
+		thrustSlider = new FlxSlider(ship.enginePower, "y", 10, 150, 1, 1000, 300, 30, 3, 0xff555555, 0xff828282);
 		thrustSlider.nameLabel.text = "ship power";
 		add(thrustSlider);
 
