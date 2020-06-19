@@ -71,18 +71,21 @@ class Ship extends FlxGroup {
 
 		thrustEmitter = new FlxEmitter();
 		thrustEmitter.launchMode = SQUARE;
-		thrustEmitter.makeParticles(2, 2, FlxColor.GRAY, 1000);
+		// thrustEmitter.makeParticles(2, 2, FlxColor.GRAY, 1000);
+		thrustEmitter.loadParticles(AssetPaths.smoke__png);
 		thrustEmitter.lifespan.min = 0.5;
 		thrustEmitter.lifespan.max = 0.75;
 		thrustEmitter.alpha.set(1, 1, 0.01, 0.05);
 		thrustEmitter.scale.set(1, 1, 1, 1, 1, 1, 2, 2);
+		thrustEmitter.angle.set(0, 359, 0, 359);
 		thrustEmitter.start(false, 0.01);
 		thrustEmitter.emitting = false;
 		add(thrustEmitter);
 
 		dustEmitter = new FlxEmitter();
 		dustEmitter.launchMode = SQUARE;
-		dustEmitter.makeParticles(2, 2, FlxColor.GRAY, 1000);
+		// dustEmitter.makeParticles(2, 2, FlxColor.GRAY, 1000);
+		dustEmitter.loadParticles(AssetPaths.smoke__png);
 		dustEmitter.lifespan.min = 0.5;
 		dustEmitter.lifespan.max = 0.75;
 		dustEmitter.alpha.set(1, 1, 0.01, 0.05);

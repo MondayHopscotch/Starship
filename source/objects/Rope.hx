@@ -171,7 +171,7 @@ class Rope {
 			offset += segments[i].getSpriteOffsetAmount();
 			segments[i].setSpriteOffset(offset);
 			// To display normals
-			FlxG.state.add(segments[i].contact2);
+			// FlxG.state.add(segments[i].contact2);
 
 			i--;
 		}
