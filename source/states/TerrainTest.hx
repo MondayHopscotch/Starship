@@ -34,7 +34,7 @@ class TerrainTest extends BackableState {
 		FlxG.bitmap.add(AssetPaths.testLevel__png, true, "terrainTest");
 		var gfx = FlxG.bitmap.get("terrainTest");
 
-		var terrain = new Terrain(gfx.bitmap, 30, 15);
+		var terrain = new Terrain(gfx.bitmap, bg, 30, 15);
 		terrain.invalidate(new AABB(0, 0, gfx.width, gfx.height), FlxNapeSpace.space);
 
 		add(Cargo.create(AssetPaths.debug_square_red__png, 320, 100, 15));

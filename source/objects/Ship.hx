@@ -11,6 +11,7 @@ import flixel.math.FlxMath;
 import flixel.math.FlxRandom;
 import flixel.math.FlxVector;
 import flixel.util.FlxColor;
+import flixel.util.FlxSpriteUtil;
 import geometry.ContactBundle;
 import input.BasicControls;
 import nape.callbacks.CbEvent;
@@ -22,6 +23,7 @@ import nape.geom.Ray;
 import nape.geom.RayResult;
 import nape.geom.Vec2;
 import objects.Towable;
+import physics.Terrain;
 
 class Ship extends FlxGroup {
 	var stats:ShipStats = CompileTime.parseJsonFile("assets/config/shipStats.json");
@@ -188,6 +190,8 @@ class Ship extends FlxGroup {
 		dustEmitter.setPosition(pos.x, pos.y);
 		// dustEmitter.angle.set(pos.reflect(result.normal, true).angle);
 
+		burnGround(pos, ray.direction, cast result.shape.body.userData.data);
+
 		var dustVariance = FlxAngle.asRadians(15);
 
 		var dustDir = result.normal.perp();
@@ -219,6 +223,16 @@ class Ship extends FlxGroup {
 
 		dustEmitter.velocity.set(dustDir.x, dustDir.y, dustDir.x, dustDir.y, 0, 0, 0, 0);
 		dustEmitter.emitting = true;
+	}
+
+	private function burnGround(pos:Vec2, normal:Vec2, terrain:Terrain) {
+		var depth = FlxG.random.int(1, 6);
+		var size = FlxG.random.int(1, 3);
+
+		var point = pos.add(normal.normalise().mul(depth));
+
+		FlxSpriteUtil.drawRect(terrain.visuals, Math.floor(point.x), Math.floor(point.y), size, size, 0x33666666);
+		// terrain.visuals.setPixel(, 0xFFFF0000);
 	}
 
 	public function tetherCargo(cargo:Towable):Bool {

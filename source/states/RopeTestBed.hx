@@ -3,6 +3,7 @@ package states;
 import constants.CGroups;
 import constants.CbTypes;
 import flixel.FlxG;
+import flixel.FlxSprite;
 import flixel.FlxState;
 import flixel.addons.nape.FlxNapeSpace;
 import flixel.addons.nape.FlxNapeSprite;
@@ -69,7 +70,7 @@ class RopeTestBed extends BackableState {
 		FlxG.bitmap.add(AssetPaths.testLevel__png, true, "terrainTest");
 		var gfx = FlxG.bitmap.get("terrainTest");
 
-		var terrain = new Terrain(gfx.bitmap, 30, 5);
+		var terrain = new Terrain(gfx.bitmap, new FlxSprite(), 30, 5);
 		terrain.invalidate(new AABB(0, 0, gfx.width, gfx.height), FlxNapeSpace.space);
 
 		rope = new Rope();

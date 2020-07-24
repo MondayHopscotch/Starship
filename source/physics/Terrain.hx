@@ -1,5 +1,6 @@
 package physics;
 
+import flixel.FlxSprite;
 import nape.geom.AABB;
 import nape.geom.IsoFunction.IsoFunctionDef;
 import nape.geom.MarchingSquares;
@@ -12,6 +13,7 @@ import openfl.display.BitmapData;
 
 class Terrain {
 	public var bitmap:BitmapData;
+	public var visuals:FlxSprite;
 
 	var cellSize:Float;
 	var subSize:Float;
@@ -25,8 +27,9 @@ class Terrain {
 	public var isoGranularity:Vec2;
 	public var isoQuality:Int = 8;
 
-	public function new(bitmap:BitmapData, cellSize:Float, subSize:Float) {
+	public function new(bitmap:BitmapData, visuals:FlxSprite, cellSize:Float, subSize:Float) {
 		this.bitmap = bitmap;
+		this.visuals = visuals;
 		this.cellSize = cellSize;
 		this.subSize = subSize;
 
